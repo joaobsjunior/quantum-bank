@@ -10,3 +10,6 @@
 [submodule "infrastructure"]
 	path = infrastructure
 	url = ../quantum-bank-submodule-sources/infrastructure
+[submodule "pki"]
+	path = pki
+	url = ../quantum-bank-submodule-sources/pki
