@@ -1,3 +1,6 @@
 [submodule "mobile-app"]
 	path = mobile-app
 	url = ../quantum-bank-submodule-sources/mobile-app
+[submodule "backend"]
+	path = backend
+	url = ../quantum-bank-submodule-sources/backend
