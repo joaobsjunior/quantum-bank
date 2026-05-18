@@ -42,6 +42,8 @@ The initial source document is `requisitos.md`. It defines a banking app with Pi
 
 The selected scope is security first. OAuth2, mTLS, CSR, OTK, and PKI should be planned early, even if the first screen implementations are minimal. Pix simulation must support both success and error paths: the app selects the scenario, and the backend returns the matching response through the gateway.
 
+The repository is structured as a multi-repo workspace with Git submodules for each layer: `mobile-app`, `backend`, `api-gateway`, `infrastructure`, and `pki`. The superproject coordinates planning, while implementation commits should land in the appropriate layer repository.
+
 ## Constraints
 
 - **Mobile stack**: Flutter 3.41 - requested app technology.
@@ -61,6 +63,7 @@ The selected scope is security first. OAuth2, mTLS, CSR, OTK, and PKI should be 
 | Pix simulation is app-selected and backend-enforced | The app can exercise success and error cases while the backend remains the source of response behavior. | - Pending |
 | Route all backend access through KrakenD | Matches the requested architecture and keeps gateway policies central. | - Pending |
 | Use OpenXPKI if KrakenD cannot cover PKI requirements | Keeps PKI implementation open source while avoiding unsupported gateway assumptions. | - Pending |
+| Use Git submodules per architecture layer | Keeps mobile, backend, gateway, infrastructure, and PKI work independently versioned while preserving a coordinated superproject. | - Pending |
 
 ## Evolution
 

@@ -1,6 +1,6 @@
 {
   "model_profile": "balanced",
-  "commit_docs": true,
+  "commit_docs": false,
   "parallelization": true,
   "search_gitignored": false,
   "brave_search": false,
@@ -34,6 +34,16 @@
   },
   "project_code": null,
   "phase_naming": "sequential",
+  "planning": {
+    "commit_docs": false,
+    "sub_repos": [
+      "api-gateway",
+      "backend",
+      "infrastructure",
+      "mobile-app",
+      "pki"
+    ]
+  },
   "agent_skills": {},
   "features": {},
   "resolve_model_ids": "omit",
