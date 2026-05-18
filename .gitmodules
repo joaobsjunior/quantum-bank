@@ -7,3 +7,6 @@
 [submodule "api-gateway"]
 	path = api-gateway
 	url = ../quantum-bank-submodule-sources/api-gateway
+[submodule "infrastructure"]
+	path = infrastructure
+	url = ../quantum-bank-submodule-sources/infrastructure
