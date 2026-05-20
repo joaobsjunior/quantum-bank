@@ -14,16 +14,15 @@ The app must prove a secure end-to-end banking flow from Flutter through KrakenD
 
 ### Validated
 
-(None yet - ship to validate)
+- [x] OAuth2 authentication gates backend/API access. Validated in Phase 2 with Keycloak local issuer configuration, KrakenD JWT policy, and backend Resource Server tests.
+- [x] Mobile app communicates with backend only through KrakenD API Gateway. Validated in Phase 2 with gateway-only mobile config and automated bypass check.
 
 ### Active
 
 - [ ] Flutter 3.41 mobile app exposes Pix transfer, statement, and customer registration data screens.
 - [ ] Pix transfer flow lets the app select a success or error scenario and receives the corresponding backend response.
-- [ ] Mobile app communicates with backend only through KrakenD API Gateway.
 - [ ] Backend is implemented with Spring Boot Kotlin.
 - [ ] Backend supports an in-memory database, such as H2, for v1 development and simulation data.
-- [ ] OAuth2 authentication gates backend/API access.
 - [ ] App follows the OTK flow to initiate backend communication and certificate provisioning.
 - [ ] Runtime CSR flow issues client certificates for mTLS communication.
 - [ ] Solution includes PKI capability; if KrakenD does not provide the needed PKI feature, use an open source PKI such as OpenXPKI.
@@ -58,10 +57,10 @@ The repository is structured as a multi-repo workspace with Git submodules for e
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Prioritize security first for v1 | Banking communication security is the highest-risk foundation and should constrain the architecture early. | - Pending |
+| Prioritize security first for v1 | Banking communication security is the highest-risk foundation and should constrain the architecture early. | Phase 2 completed OAuth2 issuer, gateway JWT policy, and backend Resource Server validation before banking UI/business APIs. |
 | Use H2 or memory database for v1 | Enables end-to-end backend behavior without external database setup or banking integrations. | - Pending |
 | Pix simulation is app-selected and backend-enforced | The app can exercise success and error cases while the backend remains the source of response behavior. | - Pending |
-| Route all backend access through KrakenD | Matches the requested architecture and keeps gateway policies central. | - Pending |
+| Route all backend access through KrakenD | Matches the requested architecture and keeps gateway policies central. | Phase 2 validated gateway-only mobile protected API config and backend direct-call rejection. |
 | Use OpenXPKI if KrakenD cannot cover PKI requirements | Keeps PKI implementation open source while avoiding unsupported gateway assumptions. | - Pending |
 | Use Git submodules per architecture layer | Keeps mobile, backend, gateway, infrastructure, and PKI work independently versioned while preserving a coordinated superproject. | - Pending |
 
@@ -83,4 +82,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-18 after initialization*
+*Last updated: 2026-05-20 after Phase 2 OAuth2 and gateway authorization*
