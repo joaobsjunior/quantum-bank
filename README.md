@@ -204,12 +204,32 @@ openspec validate --all --strict
 openspec new change <change-id>
 ```
 
-Use the `/opsx:propose`, `/opsx:apply`, and `/opsx:archive` commands when
-working through Codex.
-
 ## Notes
 
-- `.planning/` is preserved as migrated GSD history.
 - Runtime private keys and generated certificate material are intentionally
   ignored by Git.
 - v1 Pix behavior is simulated. It does not call real Pix settlement rails.
+
+## Testing & CI
+
+Every layer has a GitHub Actions workflow (`.github/workflows/ci.yml` in each
+submodule) that builds/tests and enforces its gate:
+
+| Layer | Gate |
+| --- | --- |
+| `backend` | `./gradlew check` — Kover 100% line-coverage verification |
+| `mobile-app` | `flutter test --coverage` + `scripts/check-coverage.sh` (100%) |
+| `api-gateway` | `scripts/ci-validate.sh` — KrakenD config check + bootstrap scopes |
+| `infrastructure` | `scripts/ci-validate.sh` — terraform fmt/validate + config checks |
+| `pki` | `scripts/ci-validate.sh` — bootstrap local CA + trust-anchor verify |
+
+The superproject workflow (`.github/workflows/ci.yml`) checks out all submodules
+(`submodules: recursive`) and runs every layer gate in parallel; a final `gate`
+job aggregates them so a single required status check enforces fail-closed
+behavior on `main`. An opt-in `e2e` job (manual `workflow_dispatch` or the `e2e`
+PR label) brings the solution up via Docker Compose and exercises the secure
+gateway path.
+
+Submodule checkout of these private repos needs a `SUBMODULES_TOKEN` secret (a
+PAT with read access) or SSH deploy keys. Enable branch protection with the CI
+checks as required to block merges until green.

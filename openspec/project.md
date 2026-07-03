@@ -54,8 +54,6 @@ KrakenD to the backend, including Pix success and error simulation.
   `openspec new change <change-id>` before implementation.
 - Keep implementation commits in the relevant layer repository when submodules
   are initialized.
-- Preserve `.planning/` as migrated GSD history unless explicitly asked to
-  remove it.
 
 ## Constraints
 
@@ -65,10 +63,3 @@ KrakenD to the backend, including Pix success and error simulation.
 - Do not hide cloud differences behind one lowest-common-denominator Terraform
   module.
 - Do not implement real Pix rails in v1.
-
-## Migrated Context
-
-This OpenSpec project file was migrated from `.planning/PROJECT.md` on
-2026-06-17. GSD requirements marked as validated were converted into active
-OpenSpec baseline requirements because they remain part of the expected product
-contract.
