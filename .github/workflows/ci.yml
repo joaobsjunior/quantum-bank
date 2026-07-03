@@ -1,0 +1,138 @@
+name: CI (superproject)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Whole-solution gate. Checks out every layer submodule and runs each layer's
+# build/test/coverage or validation gate in parallel. The `gate` job aggregates
+# all layer results so a single required status check enforces fail-closed
+# behavior on `main`. The `e2e` job is opt-in (manual dispatch or the `e2e` PR
+# label) because it is the slowest and most environment-dependent.
+#
+# NOTE: submodules are private repos. `actions/checkout` needs a token or SSH
+# deploy key with read access to each submodule. Provide it as the
+# `SUBMODULES_TOKEN` secret (a PAT with repo scope) or configure SSH deploy keys.
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.SUBMODULES_TOKEN || github.token }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build, test and verify coverage
+        working-directory: backend
+        run: ./gradlew --no-daemon check
+
+  mobile-app:
+    name: mobile-app
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.SUBMODULES_TOKEN || github.token }}
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.41.0"
+          cache: true
+      - name: Test with coverage and enforce threshold
+        working-directory: mobile-app
+        run: |
+          flutter pub get
+          flutter test --coverage
+          ./scripts/check-coverage.sh 100 coverage/lcov.info
+
+  api-gateway:
+    name: api-gateway
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.SUBMODULES_TOKEN || github.token }}
+      - name: Validate gateway config
+        working-directory: api-gateway
+        run: ./scripts/ci-validate.sh
+
+  infrastructure:
+    name: infrastructure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.SUBMODULES_TOKEN || github.token }}
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.14.1"
+          terraform_wrapper: false
+      - name: Validate infrastructure config
+        working-directory: infrastructure
+        run: ./scripts/ci-validate.sh
+
+  pki:
+    name: pki
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.SUBMODULES_TOKEN || github.token }}
+      - name: Validate PKI trust anchors
+        working-directory: pki
+        run: ./scripts/ci-validate.sh
+
+  e2e:
+    name: e2e (opt-in)
+    runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.pull_request.labels.*.name, 'e2e')
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.SUBMODULES_TOKEN || github.token }}
+      - name: Bring up the solution via Docker Compose
+        run: docker compose -f infrastructure/compose.yaml up -d --build
+      - name: Exercise the secure gateway path
+        run: |
+          bash infrastructure/scripts/local-e2e-smoke.sh
+          bash pki/scripts/negative-mtls-tests.sh
+      - name: Tear down
+        if: always()
+        run: docker compose -f infrastructure/compose.yaml down -v
+
+  gate:
+    name: CI gate
+    runs-on: ubuntu-latest
+    needs: [backend, mobile-app, api-gateway, infrastructure, pki]
+    if: always()
+    steps:
+      - name: Fail if any layer failed
+        run: |
+          results='${{ join(needs.*.result, ' ') }}'
+          echo "layer results: ${results}"
+          for r in ${results}; do
+            if [ "${r}" != "success" ]; then
+              echo "a required layer job did not succeed" >&2
+              exit 1
+            fi
+          done
+          echo "all layer gates passed"
