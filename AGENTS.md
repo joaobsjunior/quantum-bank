@@ -1,5 +1,3 @@
-@/Users/joaobsjunior/.codex/RTK.md
-
 # Quantum Bank Agent Instructions
 
 ## Project
@@ -19,21 +17,19 @@ to the backend, including Pix success and error simulation.
 
 ## OpenSpec Workflow
 
-This project has been migrated from GSD planning to OpenSpec.
+This project uses OpenSpec for planning and change control.
 
 - Use `openspec/` as the source of truth for product context, specs, and change
   proposals.
 - Before implementing new behavior, inspect current specs with
   `openspec list --specs` and `openspec show <spec-id>`.
-- For new work, create an OpenSpec change first with `/opsx:propose` or
+- For new work, create an OpenSpec change first with
   `openspec new change <change-id>`, then implement only after the proposal and
   tasks are clear.
-- Use `/opsx:apply` or the `openspec-apply-change` skill when implementing an
-  accepted OpenSpec change.
-- Use `/opsx:archive` or `openspec archive <change-id>` after a completed
-  change has been implemented and validated.
-- Keep `.planning/` as read-only migrated GSD history unless the user explicitly
-  asks to remove it.
+- Use the `openspec-apply-change` skill when implementing an accepted OpenSpec
+  change.
+- Use `openspec archive <change-id>` after a completed change has been
+  implemented and validated.
 
 ## Current Specs
 
