@@ -1,4 +1,10 @@
-## ADDED Requirements
+## Purpose
+
+Define the enforced test-coverage quality gates: 100% line coverage on the code
+layers (backend, mobile-app) and equivalent required validation gates on the
+config/script layers (api-gateway, infrastructure, pki), all fail-closed.
+
+## Requirements
 
 ### Requirement: Full coverage target for code layers
 Code-bearing layers (backend and mobile-app) SHALL enforce 100% line coverage as
@@ -56,5 +62,10 @@ coverage-equivalent gate.
 
 #### Scenario: PKI validation runs
 - **WHEN** the pki validation gate runs
-- **THEN** the trust-anchor and negative-mTLS verification scripts execute
+- **THEN** the local CA bootstrap and trust-anchor verification scripts execute
 - **AND** any failure blocks the layer's gate
+
+#### Scenario: Negative-mTLS checks run in the e2e job
+- **WHEN** the superproject end-to-end job runs (it requires a live runtime)
+- **THEN** the pki negative-mTLS verification script executes against the running gateway path
+- **AND** any failure fails the end-to-end job

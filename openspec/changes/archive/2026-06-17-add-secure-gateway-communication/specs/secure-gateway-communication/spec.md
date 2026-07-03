@@ -1,10 +1,4 @@
-## Purpose
-
-Define the secure communication contract between the Flutter mobile app,
-KrakenD, and the Spring Boot backend. OAuth2 gates protected access and mobile
-traffic reaches the backend only through KrakenD.
-
-## Requirements
+## ADDED Requirements
 
 ### Requirement: Gateway-only mobile communication
 The mobile app SHALL communicate with backend capabilities only through the KrakenD API gateway.
