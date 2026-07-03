@@ -1,1 +1,10 @@
+# Legacy planning tree (migrated to OpenSpec)
 .planning/
+
+# macOS
+.DS_Store
+
+# Local tooling / assistant state
+.claude/
+.rtk/
+CLAUDE.md
