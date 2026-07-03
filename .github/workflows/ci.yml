@@ -85,6 +85,8 @@ jobs:
       - name: Validate infrastructure config
         working-directory: infrastructure
         run: ./scripts/ci-validate.sh
+      - name: Validate cross-layer local-e2e config
+        run: bash infrastructure/scripts/verify-local-e2e-config.sh
 
   pki:
     name: pki
