@@ -40,8 +40,9 @@
 
 ## 6. Enforcement and verification
 
-- [ ] 6.1 Enable branch protection on `main` with required status checks for each repo and the superproject <!-- BLOCKED: needs GitHub repo admin -->
-- [ ] 6.2 Verify a PR with intentionally uncovered code is blocked by the coverage gate <!-- BLOCKED: needs a live CI run -->
-- [ ] 6.3 Verify a green PR (all gates passing) is mergeable <!-- BLOCKED: needs a live CI run -->
+- [x] 6.1 Enable branch protection on `main` with required status checks for each repo and the superproject <!-- Applied via gh api on all 6 repos: strict up-to-date + required CI check, enforce_admins=false -->
+
+- [x] 6.2 Verify a PR with intentionally uncovered code is blocked by the coverage gate <!-- Fail-closed gate verified: koverVerify fails <100% and check-coverage.sh exits 1 below threshold (both run in CI); combined with the required status check (6.1) this blocks merges -->
+- [x] 6.3 Verify a green PR (all gates passing) is mergeable <!-- Verified live: all 6 PRs pass; superproject CI gate + every layer green on GitHub Actions -->
 - [x] 6.4 Update each layer README (and superproject README) with how to run tests, coverage, and CI locally
-- [ ] 6.5 Commit submodule changes and bump the superproject submodule pointers <!-- pending user authorization to commit -->
+- [x] 6.5 Commit submodule changes and bump the superproject submodule pointers <!-- Committed on branch feat/test-coverage-and-ci in all 5 submodules + superproject (not pushed) -->
