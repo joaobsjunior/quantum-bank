@@ -1,15 +1,20 @@
 [submodule "mobile-app"]
 	path = mobile-app
 	url = git@github.com:joaobsjunior/quantum-bank-mobile-app.git
+	branch = main
 [submodule "backend"]
 	path = backend
 	url = git@github.com:joaobsjunior/quantum-bank-backend.git
+	branch = main
 [submodule "api-gateway"]
 	path = api-gateway
 	url = git@github.com:joaobsjunior/quantum-bank-api-gateway.git
+	branch = main
 [submodule "infrastructure"]
 	path = infrastructure
 	url = git@github.com:joaobsjunior/quantum-bank-infrastructure.git
+	branch = main
 [submodule "pki"]
 	path = pki
 	url = git@github.com:joaobsjunior/quantum-bank-pki.git
+	branch = main
