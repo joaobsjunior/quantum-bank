@@ -13,6 +13,7 @@ This repository is a superproject. The implementation lives in Git submodules:
 | --- | --- |
 | `mobile-app` | Flutter 3.41 mobile app for Pix, statement, and profile journeys. |
 | `backend` | Spring Boot Kotlin backend with OAuth2-protected banking APIs. |
+| `backend-client` | Spring Boot Kotlin external-service simulator with a web console; calls the bank through KrakenD via OAuth2 client-credentials + mTLS. |
 | `api-gateway` | KrakenD gateway configs for bootstrap and mTLS banking traffic. |
 | `pki` | Local CA, runtime certificates, CSR signing, and PKI lifecycle scripts. |
 | `infrastructure` | Docker Compose local runtime and Terraform cloud paths. |

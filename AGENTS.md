@@ -61,6 +61,7 @@ layer repository when submodules are initialized:
 
 - `mobile-app`
 - `backend`
+- `backend-client`
 - `api-gateway`
 - `infrastructure`
 - `pki`
