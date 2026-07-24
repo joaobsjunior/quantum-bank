@@ -18,3 +18,7 @@
 	path = pki
 	url = git@github.com:joaobsjunior/quantum-bank-pki.git
 	branch = main
+[submodule "backend-client"]
+	path = backend-client
+	url = git@github.com:joaobsjunior/quantum-bank-backend-client.git
+	branch = main
