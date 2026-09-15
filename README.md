@@ -53,7 +53,7 @@ git submodule status --recursive
 
 The executable local runtime is in `infrastructure/compose.yaml`. It starts:
 
-- Keycloak local OAuth2 issuer on `http://localhost:8180`
+- Keycloak local OAuth2 issuer on `https://localhost:8180` (TLS only, PKI-issued certificate)
 - Spring Boot backend inside the Compose network
 - KrakenD bootstrap listener on `https://localhost:8080`
 - KrakenD banking listener on `https://localhost:8443`
@@ -69,26 +69,33 @@ cd ../infrastructure
 Build and start the runtime:
 
 ```sh
-docker compose --env-file .env.example build
-docker compose --env-file .env.example up -d keycloak backend gateway-bootstrap gateway-banking
+cp .env.example .env   # then replace every change-me-local-only / changeit value
+docker compose --env-file .env build
+docker compose --env-file .env up -d keycloak backend gateway-bootstrap gateway-banking backend-client
 ```
+
+All host ports bind to `127.0.0.1` by default (`BIND_ADDRESS` in `.env`). The
+external-service console on `http://localhost:8090` requires the operator
+credentials from `BACKEND_CLIENT_CONSOLE_USERNAME` / `BACKEND_CLIENT_CONSOLE_PASSWORD`.
 
 Run the local smoke test:
 
 ```sh
-docker compose --env-file .env.example --profile smoke run --rm smoke-tests
+docker compose --env-file .env --profile smoke run --rm smoke-tests
+docker compose --env-file .env --profile smoke run --rm negative-mtls-tests
 ```
 
 Expected final output:
 
 ```text
 local-e2e-smoke-ok
+negative-mtls-ok
 ```
 
 Stop the stack:
 
 ```sh
-docker compose --env-file .env.example down
+docker compose --env-file .env down
 ```
 
 ## Local Validation Commands
@@ -153,7 +160,7 @@ Use KrakenD, not the backend, for app-facing traffic:
 
 | Entrypoint | URL | Purpose |
 | --- | --- | --- |
-| Keycloak | `http://localhost:8180` | Local OAuth2 issuer for development. |
+| Keycloak | `https://localhost:8180` | Local OAuth2 issuer for development (TLS only; trust `pki/local-ca/trust/root-ca.crt`). |
 | Gateway bootstrap | `https://localhost:8080` | OTK and CSR bootstrap routes before mobile client cert provisioning. |
 | Gateway banking | `https://localhost:8443` | Protected banking APIs requiring OAuth2 and app-to-gateway mTLS. |
 
@@ -172,6 +179,11 @@ Local defaults:
 
 - `GATEWAY_BOOTSTRAP_BASE_URL=https://localhost:8080`
 - `GATEWAY_BASE_URL=https://localhost:8443`
+
+Every origin (issuer and gateways) must be `https`; the app refuses plaintext
+origins at startup. No password is compiled into the binary: pass the local
+test user's password at build/run time, for example
+`flutter run --dart-define=KEYCLOAK_PASSWORD=<value from .env>`.
 
 Do not configure the mobile app to call the backend directly.
 
@@ -208,7 +220,13 @@ openspec new change <change-id>
 ## Notes
 
 - Runtime private keys and generated certificate material are intentionally
-  ignored by Git.
+  ignored by Git. `pki/scripts/bootstrap-local-ca.sh` re-issues the tracked
+  trust anchors whenever they do not match the local private keys, so commit
+  the regenerated `pki/local-ca/trust/*.crt` and
+  `mobile-app/assets/local-ca/root-ca.crt` together.
+- The backend container needs read access to `pki/local-ca/private/issuing-ca.key`
+  for the local sign script; set `PKI_GID` in `.env` to the group that owns that
+  directory (see `.env.example`).
 - v1 Pix behavior is simulated. It does not call real Pix settlement rails.
 
 ## Testing & CI

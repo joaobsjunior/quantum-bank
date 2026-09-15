@@ -111,15 +111,26 @@ jobs:
         with:
           submodules: recursive
           token: ${{ secrets.SUBMODULES_TOKEN || github.token }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Generate local PKI material (CA, runtime certs, negative fixtures)
+        run: bash pki/scripts/bootstrap-runtime-certs.sh
       - name: Bring up the solution via Docker Compose
-        run: docker compose -f infrastructure/compose.yaml up -d --build
-      - name: Exercise the secure gateway path
+        working-directory: infrastructure
         run: |
-          bash infrastructure/scripts/local-e2e-smoke.sh
-          bash pki/scripts/negative-mtls-tests.sh
+          echo "PKI_GID=$(stat -c %g ../pki/local-ca/private)" >> .env.example
+          docker compose --env-file .env.example up -d --build keycloak backend gateway-bootstrap gateway-banking backend-client
+      - name: Exercise the secure gateway path
+        working-directory: infrastructure
+        run: |
+          docker compose --env-file .env.example --profile smoke run --rm smoke-tests
+          docker compose --env-file .env.example --profile smoke run --rm negative-mtls-tests
       - name: Tear down
         if: always()
-        run: docker compose -f infrastructure/compose.yaml down -v
+        working-directory: infrastructure
+        run: docker compose --env-file .env.example down -v
 
   gate:
     name: CI gate
