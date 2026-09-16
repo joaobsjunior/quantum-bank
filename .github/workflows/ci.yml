@@ -111,22 +111,25 @@ jobs:
         with:
           submodules: recursive
           token: ${{ secrets.SUBMODULES_TOKEN || github.token }}
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-      - name: Generate local PKI material (CA, runtime certs, negative fixtures)
+      # PKI scripts need OpenSSL >= 3.5 (ML-DSA); the runner's OpenSSL is older,
+      # so scripts/lib/openssl-pqc.sh runs the pinned alpine/openssl container.
+      - name: Generate local PKI material (ML-DSA CA, runtime certs, negative fixtures)
         run: bash pki/scripts/bootstrap-runtime-certs.sh
       - name: Bring up the solution via Docker Compose
         working-directory: infrastructure
         run: |
           echo "PKI_GID=$(stat -c %g ../pki/local-ca/private)" >> .env.example
-          docker compose --env-file .env.example up -d --build keycloak backend gateway-bootstrap gateway-banking backend-client
+          docker compose --env-file .env.example up -d --build keycloak keycloak-tls backend gateway-bootstrap gateway-bootstrap-tls gateway-banking gateway-banking-tls backend-client
       - name: Exercise the secure gateway path
         working-directory: infrastructure
         run: |
           docker compose --env-file .env.example --profile smoke run --rm smoke-tests
           docker compose --env-file .env.example --profile smoke run --rm negative-mtls-tests
+      - name: Prove post-quantum handshakes on every hop
+        working-directory: infrastructure
+        run: docker compose --env-file .env.example --profile smoke run --rm pqc-handshake-tests
+      - name: Verify the mobile ML-DSA CSR interoperates with the PKI toolchain
+        run: bash mobile-app/scripts/verify-pqc-csr-interop.sh
       - name: Tear down
         if: always()
         working-directory: infrastructure

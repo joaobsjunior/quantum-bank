@@ -1,7 +1,10 @@
 # external-service-integration Specification
 
 ## Purpose
-TBD - created by archiving change add-backend-client-service. Update Purpose after archive.
+Define how an external company service (`backend-client`) consumes Quantum Bank
+banking capabilities exclusively through KrakenD with its own OAuth2 client
+credentials and a PKI-issued mTLS identity, exercising the Pix, statement and
+profile flows with correlation ids and problem-details handling.
 ## Requirements
 ### Requirement: Gateway-only external service communication
 The `backend-client` external service SHALL reach Quantum Bank banking

@@ -1,7 +1,9 @@
 # backend-client-console Specification
 
 ## Purpose
-TBD - created by archiving change add-backend-client-service. Update Purpose after archive.
+Define the human-facing web console of `backend-client` that lets an operator
+run each external-integration flow, choose the Pix scenario, and inspect the
+request, gateway response, correlation id and error payload.
 ## Requirements
 ### Requirement: Console drives every external-integration flow
 The `backend-client` SHALL provide a human-facing web console that lets a person
