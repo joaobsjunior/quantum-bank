@@ -49,6 +49,13 @@ This project uses OpenSpec for planning and change control.
 - API gateway: KrakenD; all mobile/backend communication must pass through it.
 - Persistence: H2 or memory database is acceptable for v1.
 - Security: OAuth2, OTK, CSR, mTLS, and PKI are core v1 concerns.
+- Post-quantum transport: every TLS hop that crosses a container or host
+  boundary is TLS 1.3 with ML-DSA peer authentication (ML-DSA-87 CA, ML-DSA-65
+  leaves) and `X25519MLKEM768` key exchange; classical certificates, keys,
+  signature schemes and groups are rejected. Components that cannot speak
+  ML-DSA (KrakenD, Keycloak) get a HAProxy + OpenSSL 3.5 terminator in their
+  network namespace and bind loopback only; JVM services use BouncyCastle
+  BCJSSE. See `docs/pqc-ml-dsa-transport.md`.
 - PKI: use KrakenD PKI features only if they satisfy the required certificate
   lifecycle; otherwise use an open source option such as OpenXPKI.
 - Deployment: backend and gateway must be dockerized; Terraform paths are
@@ -70,6 +77,9 @@ layer repository when submodules are initialized:
 
 - Do not make direct app-to-backend calls.
 - Do not accept all TLS certificates or use permissive certificate callbacks.
+- Do not reintroduce classical (RSA/EC/EdDSA) keys or certificates, classical
+  TLS signature schemes, or classical-only key-exchange groups on any hop, and
+  do not let KrakenD or Keycloak terminate TLS themselves.
 - Do not treat KrakenD as the full PKI lifecycle owner unless it proves it can
   satisfy issuance, renewal, and revocation.
 - Do not integrate real Pix rails in v1.

@@ -5,6 +5,13 @@ KrakenD, PKI/mTLS, OAuth2, and Terraform deployment paths. The v1 goal is to
 prove a secure end-to-end flow from the mobile app through KrakenD to the
 backend, including Pix success and error simulation.
 
+All communication is **post-quantum**: every TLS hop authenticates peers with
+ML-DSA certificates (FIPS 204; ML-DSA-87 CA, ML-DSA-65 leaves) and negotiates
+the `X25519MLKEM768` hybrid key exchange (FIPS 203) over TLS 1.3, refusing
+classical signature schemes and classical-only groups. See
+[docs/pqc-ml-dsa-transport.md](docs/pqc-ml-dsa-transport.md) for the
+per-layer design, the evidence gates and the known mobile-runtime gap.
+
 ## Repository Layout
 
 This repository is a superproject. The implementation lives in Git submodules:
@@ -22,7 +29,8 @@ This repository is a superproject. The implementation lives in Git submodules:
 ## Prerequisites
 
 - Git with SSH access to the submodule repositories.
-- Docker and Docker Compose.
+- Docker and Docker Compose (also used to run OpenSSL >= 3.5 for the PKI
+  scripts when the host OpenSSL is older).
 - Java 17 for local backend commands outside Docker.
 - Flutter 3.41 / Dart 3.11.x for local mobile commands outside Docker.
 - Optional: Terraform. If Terraform is not installed, the infrastructure
@@ -53,10 +61,11 @@ git submodule status --recursive
 
 The executable local runtime is in `infrastructure/compose.yaml`. It starts:
 
-- Keycloak local OAuth2 issuer on `https://localhost:8180` (TLS only, PKI-issued certificate)
-- Spring Boot backend inside the Compose network
-- KrakenD bootstrap listener on `https://localhost:8080`
-- KrakenD banking listener on `https://localhost:8443`
+- Keycloak local OAuth2 issuer on `https://localhost:8180` (post-quantum TLS
+  terminator in front of Keycloak, PKI-issued ML-DSA certificate)
+- Spring Boot backend inside the Compose network (BCJSSE post-quantum TLS)
+- KrakenD bootstrap listener on `https://localhost:8080` (HAProxy post-quantum terminator)
+- KrakenD banking listener on `https://localhost:8443` (HAProxy post-quantum terminator, app mTLS)
 
 Generate local runtime certificates first:
 
@@ -83,6 +92,7 @@ Run the local smoke test:
 ```sh
 docker compose --env-file .env --profile smoke run --rm smoke-tests
 docker compose --env-file .env --profile smoke run --rm negative-mtls-tests
+docker compose --env-file .env --profile smoke run --rm pqc-handshake-tests
 ```
 
 Expected final output:
@@ -90,6 +100,7 @@ Expected final output:
 ```text
 local-e2e-smoke-ok
 negative-mtls-ok
+pqc-handshake-ok
 ```
 
 Stop the stack:
@@ -134,15 +145,23 @@ Run gateway/source configuration checks:
 
 ```sh
 cd api-gateway
-bash scripts/verify-bootstrap-scopes.sh
+bash scripts/ci-validate.sh
 ```
 
-Run PKI checks:
+Run PKI checks (OpenSSL >= 3.5 or Docker):
 
 ```sh
 cd pki
-scripts/verify-trust-anchors.sh
-scripts/negative-mtls-tests.sh
+scripts/ci-validate.sh
+scripts/negative-mtls-tests.sh      # needs the running local runtime
+scripts/pqc-handshake-tests.sh      # needs the running local runtime and OpenSSL >= 3.5
+```
+
+Run the mobile CSR interoperability check (Dart or Docker, OpenSSL >= 3.5 or Docker):
+
+```sh
+cd mobile-app
+bash scripts/verify-pqc-csr-interop.sh
 ```
 
 Run infrastructure checks:
@@ -160,9 +179,9 @@ Use KrakenD, not the backend, for app-facing traffic:
 
 | Entrypoint | URL | Purpose |
 | --- | --- | --- |
-| Keycloak | `https://localhost:8180` | Local OAuth2 issuer for development (TLS only; trust `pki/local-ca/trust/root-ca.crt`). |
-| Gateway bootstrap | `https://localhost:8080` | OTK and CSR bootstrap routes before mobile client cert provisioning. |
-| Gateway banking | `https://localhost:8443` | Protected banking APIs requiring OAuth2 and app-to-gateway mTLS. |
+| Keycloak | `https://localhost:8180` | Local OAuth2 issuer for development (post-quantum TLS only; trust `pki/local-ca/trust/root-ca.crt`). |
+| Gateway bootstrap | `https://localhost:8080` | OTK and CSR bootstrap routes before mobile client cert provisioning (post-quantum TLS). |
+| Gateway banking | `https://localhost:8443` | Protected banking APIs requiring OAuth2 and app-to-gateway post-quantum mTLS (ML-DSA client certificate). |
 
 The backend is intentionally reachable only inside the Compose network in the
 local end-to-end runtime.
@@ -221,9 +240,13 @@ openspec new change <change-id>
 
 - Runtime private keys and generated certificate material are intentionally
   ignored by Git. `pki/scripts/bootstrap-local-ca.sh` re-issues the tracked
-  trust anchors whenever they do not match the local private keys, so commit
-  the regenerated `pki/local-ca/trust/*.crt` and
-  `mobile-app/assets/local-ca/root-ca.crt` together.
+  ML-DSA-87 trust anchors whenever they do not match the local private keys
+  (and copies the root into `mobile-app/assets/local-ca/root-ca.crt`), so
+  commit the regenerated `pki/local-ca/trust/*.crt` and the mobile asset
+  together.
+- Classical (RSA/EC) keys, certificates and CSRs are rejected everywhere;
+  keys from before the post-quantum migration are moved aside as
+  `*.pre-pqc.<timestamp>` by the PKI scripts.
 - The backend container needs read access to `pki/local-ca/private/issuing-ca.key`
   for the local sign script; set `PKI_GID` in `.env` to the group that owns that
   directory (see `.env.example`).
@@ -238,16 +261,17 @@ submodule) that builds/tests and enforces its gate:
 | --- | --- |
 | `backend` | `./gradlew check` — Kover 100% line-coverage verification |
 | `mobile-app` | `flutter test --coverage` + `scripts/check-coverage.sh` (100%) |
-| `api-gateway` | `scripts/ci-validate.sh` — KrakenD config check + bootstrap scopes |
+| `api-gateway` | `scripts/ci-validate.sh` — KrakenD config check + HAProxy terminator check with ML-DSA material + bootstrap scopes + PQC policy |
 | `infrastructure` | `scripts/ci-validate.sh` — terraform fmt/validate + config checks |
-| `pki` | `scripts/ci-validate.sh` — bootstrap local CA + trust-anchor verify |
+| `pki` | `scripts/ci-validate.sh` — bootstrap ML-DSA-87 CA + trust-anchor verify + runtime material + PQC policy |
 
 The superproject workflow (`.github/workflows/ci.yml`) checks out all submodules
 (`submodules: recursive`) and runs every layer gate in parallel; a final `gate`
 job aggregates them so a single required status check enforces fail-closed
 behavior on `main`. An opt-in `e2e` job (manual `workflow_dispatch` or the `e2e`
 PR label) brings the solution up via Docker Compose and exercises the secure
-gateway path.
+gateway path, the negative mTLS matrix, the post-quantum handshake evidence and
+the mobile CSR interoperability check.
 
 Submodule checkout of these private repos needs a `SUBMODULES_TOKEN` secret (a
 PAT with read access) or SSH deploy keys. Enable branch protection with the CI
