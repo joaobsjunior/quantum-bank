@@ -5,12 +5,17 @@ KrakenD, PKI/mTLS, OAuth2, and Terraform deployment paths. The v1 goal is to
 prove a secure end-to-end flow from the mobile app through KrakenD to the
 backend, including Pix success and error simulation.
 
-All communication is **post-quantum**: every TLS hop authenticates peers with
-ML-DSA certificates (FIPS 204; ML-DSA-87 CA, ML-DSA-65 leaves) and negotiates
-the `X25519MLKEM768` hybrid key exchange (FIPS 203) over TLS 1.3, refusing
-classical signature schemes and classical-only groups. See
-[docs/pqc-ml-dsa-transport.md](docs/pqc-ml-dsa-transport.md) for the
-per-layer design, the evidence gates and the known mobile-runtime gap.
+All communication is **post-quantum first**: every service-to-service TLS hop
+authenticates peers with ML-DSA certificates (FIPS 204; ML-DSA-87 CA, ML-DSA-65
+leaves) and negotiates only the `X25519MLKEM768` hybrid key exchange (FIPS 203)
+over TLS 1.3. The app-facing listeners (issuer and gateway) serve a dual
+identity: the same ML-DSA chain to clients that offer ML-DSA signature schemes,
+and an ECDSA P-256 compatibility chain to clients whose TLS stack cannot verify
+ML-DSA yet (the Dart/BoringSSL mobile transport, browsers), preferring the
+hybrid group and accepting `X25519`; RSA is refused everywhere. See
+[docs/pqc-ml-dsa-transport.md](docs/pqc-ml-dsa-transport.md) for the tiers,
+the per-stack capability matrix that motivates them, the per-layer design and
+the evidence gates.
 
 ## Repository Layout
 
@@ -61,11 +66,12 @@ git submodule status --recursive
 
 The executable local runtime is in `infrastructure/compose.yaml`. It starts:
 
-- Keycloak local OAuth2 issuer on `https://localhost:8180` (post-quantum TLS
-  terminator in front of Keycloak, PKI-issued ML-DSA certificate)
-- Spring Boot backend inside the Compose network (BCJSSE post-quantum TLS)
-- KrakenD bootstrap listener on `https://localhost:8080` (HAProxy post-quantum terminator)
-- KrakenD banking listener on `https://localhost:8443` (HAProxy post-quantum terminator, app mTLS)
+- Keycloak local OAuth2 issuer on `https://localhost:8180` (HAProxy TLS
+  terminator in front of Keycloak, dual PKI-issued identity: ML-DSA-65 and
+  ECDSA P-256)
+- Spring Boot backend inside the Compose network (BCJSSE, ML-DSA only)
+- KrakenD bootstrap listener on `https://localhost:8080` (HAProxy terminator, dual identity)
+- KrakenD banking listener on `https://localhost:8443` (HAProxy terminator, dual identity, app mTLS from either PKI chain)
 
 Generate local runtime certificates first:
 
