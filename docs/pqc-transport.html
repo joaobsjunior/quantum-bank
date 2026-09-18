@@ -1,0 +1,1181 @@
+<title>Transporte Pós-Quântico Quantum Bank</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --ground: #F2F5F7;
+    --surface: #FFFFFF;
+    --surface-2: #E9EEF2;
+    --ink: #16212B;
+    --muted: #5B6B7A;
+    --line: #D5DEE5;
+    --pq: #1B7F79;
+    --pq-soft: #DDF0EE;
+    --compat: #A8622B;
+    --compat-soft: #F6E7DA;
+    --danger: #B23A3A;
+    --danger-soft: #F7E1E1;
+    --code-bg: #1C2732;
+    --code-ink: #E6EDF2;
+    --arch-app: #99FFFF;
+    --arch-tech: #AFFFAF;
+    --arch-ink: #16212B;
+    --shadow: 0 1px 2px rgba(22, 33, 43, 0.06), 0 8px 24px rgba(22, 33, 43, 0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0F171E;
+      --surface: #17232C;
+      --surface-2: #1F2D38;
+      --ink: #E6EDF2;
+      --muted: #9AAAB8;
+      --line: #2C3A46;
+      --pq: #4FC1B6;
+      --pq-soft: #163B39;
+      --compat: #E0996A;
+      --compat-soft: #3E2A1B;
+      --danger: #E07A7A;
+      --danger-soft: #402222;
+      --code-bg: #0B1218;
+      --code-ink: #DCE5EC;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0F171E;
+    --surface: #17232C;
+    --surface-2: #1F2D38;
+    --ink: #E6EDF2;
+    --muted: #9AAAB8;
+    --line: #2C3A46;
+    --pq: #4FC1B6;
+    --pq-soft: #163B39;
+    --compat: #E0996A;
+    --compat-soft: #3E2A1B;
+    --danger: #E07A7A;
+    --danger-soft: #402222;
+    --code-bg: #0B1218;
+    --code-ink: #DCE5EC;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.55;
+    padding-inline: 16px;
+    padding-block: 0 64px;
+  }
+  a { color: var(--pq); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--pq); outline-offset: 3px; }
+  h1, h2, h3, h4 { font-family: "Sora", "Segoe UI", system-ui, sans-serif; text-wrap: balance; line-height: 1.2; margin: 0; }
+  h1 { font-size: clamp(1.9rem, 4vw, 2.7rem); font-weight: 700; letter-spacing: -0.01em; }
+  h2 { font-size: 1.55rem; font-weight: 600; margin-top: 0; }
+  h3 { font-size: 1.15rem; font-weight: 600; margin-top: 1.8rem; margin-bottom: 0.5rem; }
+  h4 { font-size: 1rem; font-weight: 600; margin-top: 1.2rem; margin-bottom: 0.3rem; }
+  p { margin: 0 0 1rem; max-width: 70ch; }
+  ul, ol { margin: 0 0 1rem; padding-left: 1.3rem; max-width: 70ch; }
+  li { margin-bottom: 0.35rem; }
+  li > ul { margin-top: 0.35rem; }
+  code, pre, kbd { font-family: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace; }
+  code { font-size: 0.86em; background: var(--surface-2); padding: 0.08em 0.35em; border-radius: 4px; }
+  pre {
+    background: var(--code-bg); color: var(--code-ink);
+    padding: 14px 16px; border-radius: 8px; overflow-x: auto;
+    font-size: 0.82rem; line-height: 1.5; margin: 0.8rem 0 1.2rem;
+  }
+  pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+  strong { font-weight: 600; }
+
+  .page { max-width: 1180px; margin: 0 auto; }
+  header.masthead {
+    padding-block: 40px 28px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 28px;
+  }
+  .eyebrow {
+    font-family: "Sora", sans-serif; font-size: 0.72rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 10px;
+  }
+  .lede { font-size: 1.12rem; color: var(--muted); max-width: 64ch; margin-top: 14px; }
+  .facts {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 12px; margin-top: 24px; list-style: none; padding: 0; max-width: none;
+  }
+  .facts li {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+    padding: 12px 14px; margin: 0;
+  }
+  .facts .k { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .facts .v { font-family: "IBM Plex Mono", monospace; font-size: 0.95rem; margin-top: 4px; }
+  .facts .n { font-size: 0.85rem; color: var(--muted); margin-top: 2px; }
+
+  .layout { display: grid; grid-template-columns: 1fr; gap: 32px; }
+  @media (min-width: 1024px) {
+    .layout { grid-template-columns: 230px minmax(0, 1fr); align-items: start; }
+    nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); }
+  }
+  nav.toc {
+    font-size: 0.9rem; border-left: 2px solid var(--line); padding-left: 14px;
+  }
+  nav.toc .eyebrow { margin-bottom: 6px; }
+  nav.toc ol { list-style: none; padding: 0; margin: 0; counter-reset: sec; }
+  nav.toc li { margin: 0; }
+  nav.toc a {
+    display: block; color: var(--muted); text-decoration: none; padding: 3px 0;
+  }
+  nav.toc a:hover { color: var(--ink); }
+  nav.toc a::before { counter-increment: sec; content: counter(sec) "  "; font-family: "IBM Plex Mono", monospace; font-size: 0.75rem; color: var(--pq); }
+
+  main { min-width: 0; }
+  section { padding-block: 8px 28px; border-bottom: 1px solid var(--line); margin-bottom: 28px; }
+  section:last-of-type { border-bottom: 0; }
+  section > h2 { display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+  section > h2 .num { font-family: "IBM Plex Mono", monospace; font-size: 0.85rem; color: var(--pq); font-weight: 500; }
+
+  .tier { display: inline-block; font-family: "Sora", sans-serif; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; vertical-align: middle; }
+  .tier.pq { background: var(--pq-soft); color: var(--pq); }
+  .tier.compat { background: var(--compat-soft); color: var(--compat); }
+  .tier.no { background: var(--danger-soft); color: var(--danger); }
+
+  .callout {
+    border-left: 3px solid var(--pq); background: var(--surface); padding: 12px 16px;
+    border-radius: 0 8px 8px 0; margin: 1rem 0 1.2rem; max-width: 76ch;
+  }
+  .callout.compat { border-left-color: var(--compat); }
+  .callout.warn { border-left-color: var(--danger); }
+  .callout p:last-child { margin-bottom: 0; }
+
+  .table-wrap { overflow-x: auto; margin: 0.6rem 0 1.4rem; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-family: "Sora", sans-serif; font-size: 0.74rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: var(--surface-2); }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  td code { white-space: nowrap; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin: 0.6rem 0 1.4rem; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+  .card h3 { margin-top: 0; font-size: 1.02rem; }
+  .card .repo { font-family: "IBM Plex Mono", monospace; font-size: 0.78rem; color: var(--muted); margin-bottom: 8px; }
+  .card ul { font-size: 0.93rem; margin-bottom: 0; }
+  .card p { font-size: 0.93rem; }
+
+  figure { margin: 1.2rem 0 1.6rem; }
+  figure .canvas { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px; }
+  figure svg { display: block; max-width: 100%; height: auto; margin: 0 auto; font-family: "Source Sans 3", system-ui, sans-serif; }
+  figure svg text { fill: currentColor; }
+  figcaption { font-size: 0.88rem; color: var(--muted); margin-top: 8px; max-width: 76ch; }
+  figure svg .box { fill: var(--surface-2); stroke: currentColor; stroke-width: 1; }
+  figure svg .ns { fill: none; stroke: currentColor; stroke-width: 1; stroke-dasharray: 5 4; }
+  figure svg .pq { stroke: var(--pq); }
+  figure svg .pq-fill { fill: var(--pq); }
+  figure svg .compat { stroke: var(--compat); }
+  figure svg .compat-fill { fill: var(--compat); }
+  figure svg .danger { stroke: var(--danger); }
+  figure svg .danger-fill { fill: var(--danger); }
+  figure svg .pq-text { fill: var(--pq); }
+  figure svg .compat-text { fill: var(--compat); }
+  figure svg .danger-text { fill: var(--danger); }
+  figure svg .muted-text { fill: var(--muted); }
+  figure svg .mono { font-family: "IBM Plex Mono", monospace; }
+  figure svg .arch-app { fill: var(--arch-app); stroke: #1B5E5A; stroke-width: 1; }
+  figure svg .arch-tech { fill: var(--arch-tech); stroke: #2E6B2E; stroke-width: 1; }
+  figure svg .arch-ink, figure svg .arch-ink text { fill: var(--arch-ink); }
+  figure svg .arch-icon { fill: none; stroke: var(--arch-ink); stroke-width: 1; }
+  figure svg .arch-art { fill: #FFFFFF; stroke: var(--arch-ink); stroke-width: 1; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 14px 22px; font-size: 0.86rem; color: var(--muted); margin: 8px 0 0; padding: 0; list-style: none; max-width: none; }
+  .legend li { display: flex; align-items: center; gap: 8px; margin: 0; }
+  .legend .sw { width: 26px; height: 0; border-top: 3px solid; display: inline-block; }
+  .legend .sw.pq { border-color: var(--pq); }
+  .legend .sw.compat { border-color: var(--compat); }
+  .legend .sw.danger { border-color: var(--danger); border-top-style: dashed; }
+  .legend .sw.loop { border-color: var(--muted); border-top-style: dotted; }
+
+  .steps { counter-reset: step; list-style: none; padding: 0; max-width: 76ch; }
+  .steps li { position: relative; padding-left: 44px; margin-bottom: 14px; }
+  .steps li::before {
+    counter-increment: step; content: counter(step);
+    position: absolute; left: 0; top: 2px; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--pq-soft); color: var(--pq); font-family: "Sora", sans-serif; font-size: 0.85rem; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .steps li strong { display: block; }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 0.6rem 0 1rem; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 6px;
+    font-family: "Sora", sans-serif; font-size: 0.86rem; font-weight: 600; text-decoration: none;
+    border: 1px solid var(--pq); color: var(--pq); background: var(--surface);
+  }
+  .btn.primary { background: var(--pq); color: #FFFFFF; }
+  .btn:hover { filter: brightness(0.96); }
+
+  footer { margin-top: 40px; font-size: 0.85rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 16px; }
+  dl.refs { max-width: 76ch; }
+  dl.refs dt { font-weight: 600; margin-top: 10px; }
+  dl.refs dd { margin: 2px 0 0; color: var(--muted); font-size: 0.93rem; }
+</style>
+
+<div class="page">
+<header class="masthead">
+  <div class="eyebrow">Quantum Bank · Arquitetura e criptografia de transporte</div>
+  <h1>Como o Quantum Bank protege cada hop com criptografia pós-quântica</h1>
+  <p class="lede">Este documento descreve a arquitetura do projeto (app Flutter, KrakenD, Spring Boot, Keycloak, PKI e infraestrutura) e explica, hop a hop, como o TLS 1.3 é autenticado com ML-DSA (FIPS 204) e cifrado a partir da troca de chaves híbrida X25519MLKEM768 (FIPS 203), onde a cadeia de compatibilidade ECDSA entra e por quê.</p>
+  <ul class="facts">
+    <li><span class="k">Troca de chaves</span><div class="v">X25519MLKEM768</div><div class="n">ML-KEM-768 híbrido com X25519, único grupo aceito nos hops estritos</div></li>
+    <li><span class="k">Assinatura (serviços)</span><div class="v">ML-DSA-65 / ML-DSA-87</div><div class="n">folhas ML-DSA-65, CA raiz e emissora ML-DSA-87</div></li>
+    <li><span class="k">Compatibilidade (borda do app)</span><div class="v">ECDSA P-256 / P-384</div><div class="n">somente para clientes que ainda não verificam ML-DSA</div></li>
+    <li><span class="k">Recusado em todo lugar</span><div class="v">RSA · EdDSA · ML-DSA-44</div><div class="n">TLS 1.2 e grupos clássicos puros nos hops estritos</div></li>
+  </ul>
+</header>
+
+<div class="layout">
+<nav class="toc" aria-label="Sumário">
+  <div class="eyebrow">Sumário</div>
+  <ol>
+    <li><a href="#resumo">Resumo executivo</a></li>
+    <li><a href="#arquitetura">Arquitetura do projeto</a></li>
+    <li><a href="#componentes">Componentes por camada</a></li>
+    <li><a href="#fluxo">Fluxo de segurança fim a fim</a></li>
+    <li><a href="#fundamentos">Fundamentos: ML-KEM e ML-DSA</a></li>
+    <li><a href="#camadas">As duas camadas de transporte</a></li>
+    <li><a href="#capacidades">Matriz de capacidades dos clientes</a></li>
+    <li><a href="#handshake">Decisão do handshake</a></li>
+    <li><a href="#pki">PKI: duas cadeias que não se cruzam</a></li>
+    <li><a href="#implementacao">Implementação por repositório</a></li>
+    <li><a href="#cloud">Nuvem: AWS, GCP e Azure</a></li>
+    <li><a href="#archimate">Visão ArchiMate 3.0 (draw.io)</a></li>
+    <li><a href="#evidencias">Evidências e testes</a></li>
+    <li><a href="#limites">Limitações e roadmap</a></li>
+    <li><a href="#referencias">Referências</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<section id="resumo">
+  <h2><span class="num">01</span>Resumo executivo</h2>
+  <p>O Quantum Bank é um app bancário móvel com três jornadas (Pix, extrato e dados cadastrais) cujo objetivo de v1 é provar um fluxo seguro de ponta a ponta: app Flutter → gateway KrakenD → backend Spring Boot Kotlin. Nenhuma chamada do app vai direto ao backend; todo tráfego passa pelo gateway.</p>
+  <p>A criptografia "quântica" do projeto é, tecnicamente, <strong>criptografia pós-quântica (PQC)</strong>: algoritmos clássicos (rodam em computadores comuns) projetados para resistir a ataques de computadores quânticos. Ela é aplicada na camada de transporte (TLS 1.3) e no ciclo de vida dos certificados (PKI e CSR), em dois pontos distintos:</p>
+  <ul>
+    <li><strong>Confidencialidade</strong>: a troca de chaves de cada sessão TLS usa o grupo híbrido <code>X25519MLKEM768</code>, que combina o KEM pós-quântico ML-KEM-768 com X25519. Isso protege contra o ataque "colete agora, decifre depois".</li>
+    <li><strong>Autenticação</strong>: os certificados dos serviços são assinados com ML-DSA (folhas ML-DSA-65, CAs ML-DSA-87). A autenticação mútua (mTLS) entre gateway e backend, e do app com o gateway bancário, usa esses certificados.</li>
+  </ul>
+  <p>Como alguns clientes ainda não verificam ML-DSA (o TLS do Dart/BoringSSL usado pelo Flutter e os navegadores), os listeners voltados ao app expõem uma <strong>identidade dual</strong>: a mesma cadeia ML-DSA para quem a suporta, e uma cadeia de compatibilidade ECDSA P-256 (CA ECDSA P-384) para quem não suporta. A troca de chaves híbrida continua sendo preferida em todos os casos. Isso torna a configuração viável em produção hoje, sem rebaixar os hops entre serviços.</p>
+  <div class="callout">
+    <p><strong>Regra de ouro do projeto.</strong> Hops entre serviços: ML-DSA + X25519MLKEM768, nada mais. Borda do app: ML-DSA quando o cliente consegue, ECDSA P-256 quando não, sempre com o híbrido preferido e X25519 aceito. RSA, EdDSA e ML-DSA-44 são recusados em todo lugar, e KrakenD e Keycloak nunca terminam TLS por conta própria.</p>
+  </div>
+</section>
+
+<section id="arquitetura">
+  <h2><span class="num">02</span>Arquitetura do projeto</h2>
+  <p>O repositório <code>quantum-bank</code> é um superprojeto que coordena planejamento (OpenSpec) e referencia seis submódulos, um por camada. Cada submódulo tem seu próprio CI e seus próprios scripts de validação.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Submódulo</th><th>Stack</th><th>Responsabilidade</th></tr></thead>
+      <tbody>
+        <tr><td><code>mobile-app</code></td><td>Flutter 3.41 / Dart 3.11</td><td>App com as jornadas Pix, extrato e perfil; bootstrap de identidade do dispositivo (OTK + CSR); seleção do modo de transporte.</td></tr>
+        <tr><td><code>api-gateway</code></td><td>KrakenD 2.13 + HAProxy 3.2 / OpenSSL 3.5</td><td>Dois listeners (bootstrap e banking), validação de JWT, roteamento ao backend; terminadores TLS no mesmo namespace de rede.</td></tr>
+        <tr><td><code>backend</code></td><td>Spring Boot Kotlin, JDK 17, BouncyCastle 1.86 (BCJSSE)</td><td>APIs de OTK, CSR, Pix, extrato e perfil; mTLS ML-DSA em processo; simulação Pix (sucesso/erro).</td></tr>
+        <tr><td><code>backend-client</code></td><td>Spring Boot Kotlin, JDK 17, BCJSSE</td><td>Simulador de serviço externo com console web; consome o banco via gateway com client-credentials + mTLS.</td></tr>
+        <tr><td><code>pki</code></td><td>Bash + OpenSSL ≥ 3.5</td><td>Duas hierarquias de CA, identidades de runtime, assinatura de CSR, fixtures negativas e scripts de evidência.</td></tr>
+        <tr><td><code>infrastructure</code></td><td>Docker Compose, Terraform</td><td>Runtime local completo (Keycloak, backend, gateways, terminadores, testes) e caminhos de nuvem para AWS, GCP e Azure.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Topologia de runtime</h3>
+  <p>A figura mostra a topologia local do Compose, que é a mesma que o Terraform reproduz na nuvem. A cor de cada seta indica a camada de transporte do hop: cobre para a borda do app (identidade dual), verde-azulado para os hops estritos entre serviços. Linhas pontilhadas cinza são loopback dentro de um namespace de rede e nunca saem do container.</p>
+  <figure>
+    <div class="canvas">
+    <svg viewBox="0 0 1120 600" role="img" aria-label="Topologia de runtime: o app fala com o terminador do Keycloak e com os dois terminadores do gateway pela camada dual; os terminadores falam com KrakenD e Keycloak por loopback; os egressos do gateway e o backend-client falam com o backend e com o Keycloak pela camada estrita.">
+      <defs>
+        <marker id="ah-pq" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="pq-fill"/></marker>
+        <marker id="ah-compat" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="compat-fill"/></marker>
+        <marker id="ah-loop" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+      </defs>
+
+      <!-- Device -->
+      <rect x="20" y="230" width="190" height="130" rx="8" class="box"/>
+      <text x="115" y="256" text-anchor="middle" font-size="13" font-weight="600">Dispositivo móvel</text>
+      <text x="115" y="276" text-anchor="middle" font-size="12">Quantum Bank Mobile</text>
+      <text x="115" y="293" text-anchor="middle" font-size="11" class="muted-text">Flutter 3.41 · dart:io (BoringSSL)</text>
+      <text x="115" y="318" text-anchor="middle" font-size="11" class="mono">chave ML-DSA-65 ou P-256</text>
+      <text x="115" y="336" text-anchor="middle" font-size="11" class="mono">certificado do dispositivo</text>
+
+      <!-- Keycloak namespace -->
+      <rect x="320" y="30" width="330" height="120" rx="8" class="ns"/>
+      <text x="332" y="50" font-size="11" class="muted-text">namespace de rede: keycloak</text>
+      <rect x="335" y="62" width="152" height="70" rx="6" class="box compat" style="stroke-width:1.5"/>
+      <text x="411" y="84" text-anchor="middle" font-size="12" font-weight="600">keycloak-tls</text>
+      <text x="411" y="100" text-anchor="middle" font-size="10.5">HAProxy 3.2 · OpenSSL 3.5</text>
+      <text x="411" y="116" text-anchor="middle" font-size="10.5" class="mono">:8443 · identidade dual</text>
+      <rect x="500" y="62" width="138" height="70" rx="6" class="box"/>
+      <text x="567" y="84" text-anchor="middle" font-size="12" font-weight="600">Keycloak 26</text>
+      <text x="567" y="100" text-anchor="middle" font-size="11">emissor OAuth2</text>
+      <text x="569" y="116" text-anchor="middle" font-size="10.5" class="mono">127.0.0.1:8080 HTTP</text>
+      <line x1="487" y1="97" x2="500" y2="97" stroke="currentColor" stroke-dasharray="2 3" marker-end="url(#ah-loop)"/>
+
+      <!-- Gateway bootstrap namespace -->
+      <rect x="320" y="180" width="330" height="140" rx="8" class="ns"/>
+      <text x="332" y="200" font-size="11" class="muted-text">namespace de rede: gateway-bootstrap</text>
+      <rect x="335" y="212" width="152" height="96" rx="6" class="box compat" style="stroke-width:1.5"/>
+      <text x="411" y="232" text-anchor="middle" font-size="11.5" font-weight="600">gateway-bootstrap-tls</text>
+      <text x="411" y="248" text-anchor="middle" font-size="10.5" class="mono">:8080 · identidade dual</text>
+      <text x="411" y="268" text-anchor="middle" font-size="10.5" class="mono">egress 127.0.0.1:18081</text>
+      <text x="411" y="284" text-anchor="middle" font-size="10.5" class="mono">egress 127.0.0.1:18082</text>
+      <rect x="500" y="212" width="138" height="96" rx="6" class="box"/>
+      <text x="567" y="232" text-anchor="middle" font-size="12" font-weight="600">KrakenD 2.13</text>
+      <text x="567" y="248" text-anchor="middle" font-size="11">bootstrap</text>
+      <text x="567" y="268" text-anchor="middle" font-size="11" class="mono">127.0.0.1:18080</text>
+      <text x="567" y="284" text-anchor="middle" font-size="11">JWT RS256 via JWKS</text>
+      <line x1="487" y1="240" x2="500" y2="240" stroke="currentColor" stroke-dasharray="2 3" marker-end="url(#ah-loop)"/>
+      <line x1="500" y1="276" x2="487" y2="276" stroke="currentColor" stroke-dasharray="2 3" marker-end="url(#ah-loop)"/>
+
+      <!-- Gateway banking namespace -->
+      <rect x="320" y="350" width="330" height="140" rx="8" class="ns"/>
+      <text x="332" y="370" font-size="11" class="muted-text">namespace de rede: gateway-banking</text>
+      <rect x="335" y="382" width="152" height="96" rx="6" class="box compat" style="stroke-width:1.5"/>
+      <text x="411" y="402" text-anchor="middle" font-size="11.5" font-weight="600">gateway-banking-tls</text>
+      <text x="411" y="418" text-anchor="middle" font-size="10.5" class="mono">:8443 · dual · mTLS</text>
+      <text x="411" y="438" text-anchor="middle" font-size="10.5" class="mono">verify required</text>
+      <text x="411" y="454" text-anchor="middle" font-size="10.5" class="mono">egress 127.0.0.1:18081</text>
+      <rect x="500" y="382" width="138" height="96" rx="6" class="box"/>
+      <text x="567" y="402" text-anchor="middle" font-size="12" font-weight="600">KrakenD 2.13</text>
+      <text x="567" y="418" text-anchor="middle" font-size="11">banking</text>
+      <text x="567" y="438" text-anchor="middle" font-size="11" class="mono">127.0.0.1:18443</text>
+      <text x="569" y="454" text-anchor="middle" font-size="10.5">JWT + cert do cliente</text>
+      <line x1="487" y1="410" x2="500" y2="410" stroke="currentColor" stroke-dasharray="2 3" marker-end="url(#ah-loop)"/>
+      <line x1="500" y1="446" x2="487" y2="446" stroke="currentColor" stroke-dasharray="2 3" marker-end="url(#ah-loop)"/>
+
+      <!-- Backend -->
+      <rect x="800" y="250" width="290" height="120" rx="8" class="box pq" style="stroke-width:1.5"/>
+      <text x="945" y="274" text-anchor="middle" font-size="13" font-weight="600">Backend (Spring Boot Kotlin)</text>
+      <text x="945" y="292" text-anchor="middle" font-size="11">JDK 17 · BouncyCastle BCJSSE · H2</text>
+      <text x="945" y="312" text-anchor="middle" font-size="11" class="mono">:8080 · mTLS estrito ML-DSA</text>
+      <text x="945" y="330" text-anchor="middle" font-size="11" class="mono">X25519MLKEM768 somente</text>
+      <text x="945" y="352" text-anchor="middle" font-size="10.5">/auth/otk · /auth/csr · /pix/transfers · /statements · /profile</text>
+
+      <!-- backend-client -->
+      <rect x="800" y="430" width="290" height="110" rx="8" class="box pq" style="stroke-width:1.5"/>
+      <text x="945" y="454" text-anchor="middle" font-size="13" font-weight="600">backend-client (serviço externo)</text>
+      <text x="945" y="472" text-anchor="middle" font-size="11">Spring Boot Kotlin · BCJSSE · console :8090</text>
+      <text x="945" y="492" text-anchor="middle" font-size="11" class="mono">client credentials + mTLS ML-DSA-65</text>
+      <text x="945" y="512" text-anchor="middle" font-size="11">oferece apenas ML-DSA → recebe a cadeia ML-DSA</text>
+
+      <!-- PKI -->
+      <rect x="800" y="40" width="290" height="150" rx="8" class="box"/>
+      <text x="945" y="64" text-anchor="middle" font-size="13" font-weight="600">PKI local (OpenSSL ≥ 3.5)</text>
+      <text x="945" y="86" text-anchor="middle" font-size="11" class="pq-text">root-ca / issuing-ca · ML-DSA-87</text>
+      <text x="945" y="104" text-anchor="middle" font-size="10.5" class="compat-text">root-ca-compat / issuing-ca-compat · ECDSA P-384</text>
+      <text x="945" y="126" text-anchor="middle" font-size="11" class="mono">bootstrap-runtime-certs.sh</text>
+      <text x="945" y="144" text-anchor="middle" font-size="11" class="mono">sign-csr.sh (escolhe a cadeia pela chave)</text>
+      <text x="945" y="166" text-anchor="middle" font-size="10.5" class="muted-text">montada como volume só-leitura nos serviços</text>
+
+      <!-- App flows (compat colored = dual tier) -->
+      <path d="M210,270 C260,270 270,97 335,97" fill="none" class="compat" stroke-width="2" marker-end="url(#ah-compat)"/>
+      <text x="232" y="150" font-size="11" class="compat-text">token OAuth2 (ROPC)</text>
+      <path d="M210,295 C260,295 270,260 335,260" fill="none" class="compat" stroke-width="2" marker-end="url(#ah-compat)"/>
+      <text x="228" y="238" font-size="11" class="compat-text">OTK + CSR</text>
+      <path d="M210,320 C260,320 270,430 335,430" fill="none" class="compat" stroke-width="2" marker-end="url(#ah-compat)"/>
+      <text x="222" y="400" font-size="11" class="compat-text">mTLS + JWT</text>
+
+      <!-- Strict flows -->
+      <path d="M650,268 C720,268 730,300 800,300" fill="none" class="pq" stroke-width="2" marker-end="url(#ah-pq)"/>
+      <text x="668" y="262" font-size="11" class="pq-text">18081 → backend:8080</text>
+      <path d="M650,438 C720,438 730,320 800,320" fill="none" class="pq" stroke-width="2" marker-end="url(#ah-pq)"/>
+      <text x="668" y="452" font-size="11" class="pq-text">18081 → backend:8080</text>
+      <path d="M650,284 C700,284 690,97 650,97" fill="none" class="pq" stroke-width="2" marker-end="url(#ah-pq)"/>
+      <text x="660" y="196" font-size="10.5" class="pq-text">18082 → keycloak (JWKS)</text>
+      <path d="M945,250 C945,220 900,170 850,150" fill="none" class="pq" stroke-width="2" marker-end="url(#ah-pq)"/>
+      <text x="968" y="222" font-size="11" class="pq-text">JWKS estrito</text>
+      <path d="M800,470 C740,470 720,560 405,560 C380,560 380,478 400,478" fill="none" class="pq" stroke-width="2" marker-end="url(#ah-pq)"/>
+      <text x="430" y="580" font-size="11" class="pq-text">mTLS ML-DSA no banking :8443 (recebe a cadeia ML-DSA)</text>
+      <path d="M800,500 C700,500 690,150 650,110" fill="none" class="pq" stroke-width="2" marker-end="url(#ah-pq)"/>
+      <text x="690" y="528" font-size="10.5" class="pq-text">token client-credentials → keycloak :8443</text>
+    </svg>
+    </div>
+    <ul class="legend">
+      <li><span class="sw compat"></span>Camada dual (borda do app): ML-DSA ou ECDSA P-256, X25519MLKEM768 preferido</li>
+      <li><span class="sw pq"></span>Camada estrita: ML-DSA-65 + X25519MLKEM768 somente</li>
+      <li><span class="sw loop"></span>Loopback no namespace: equivalente a um hop em processo</li>
+    </ul>
+    <figcaption>Figura 1. Topologia de runtime. Cada componente que não fala ML-DSA (KrakenD, Keycloak) recebe um terminador HAProxy 3.2 com OpenSSL 3.5 no seu namespace de rede e escuta somente em loopback. O backend e o backend-client falam TLS diretamente com BouncyCastle BCJSSE.</figcaption>
+  </figure>
+
+  <h3>Portas e listeners</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Listener</th><th>Onde</th><th>Camada</th><th>Quem conecta</th></tr></thead>
+      <tbody>
+        <tr><td><code>keycloak-tls :8443</code> (host <code>127.0.0.1:8180</code>)</td><td>Terminador no namespace <code>keycloak</code></td><td><span class="tier compat">dual</span></td><td>App (token ROPC), navegadores, backend-client (client credentials), egressos JWKS do gateway e do backend</td></tr>
+        <tr><td><code>gateway-bootstrap-tls :8080</code></td><td>Terminador no namespace <code>gateway-bootstrap</code></td><td><span class="tier compat">dual</span></td><td>App antes de ter certificado: <code>/auth/otk</code> e <code>/auth/csr</code> com JWT</td></tr>
+        <tr><td><code>gateway-banking-tls :8443</code></td><td>Terminador no namespace <code>gateway-banking</code></td><td><span class="tier compat">dual + mTLS</span></td><td>App com certificado do dispositivo (ML-DSA-65 ou ECDSA P-256) e backend-client (ML-DSA-65)</td></tr>
+        <tr><td><code>backend :8080</code></td><td>Container do backend, BCJSSE em processo</td><td><span class="tier pq">estrito</span></td><td>Somente os egressos dos gateways com <code>gateway-client.pem</code> (ML-DSA-65)</td></tr>
+        <tr><td><code>127.0.0.1:18080 / 18443</code></td><td>KrakenD dentro do namespace</td><td>loopback</td><td>Só o terminador do mesmo namespace</td></tr>
+        <tr><td><code>127.0.0.1:18081 / 18082</code></td><td>Egressos do terminador</td><td>loopback → <span class="tier pq">estrito</span></td><td>KrakenD envia HTTP simples; o HAProxy abre TLS estrito para o backend (18081) ou para o emissor (18082)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="componentes">
+  <h2><span class="num">03</span>Componentes por camada</h2>
+  <p>Os cartões abaixo listam o que cada camada faz e quais peças participam da criptografia de transporte. Os nomes em código são os das classes e scripts nos repositórios.</p>
+  <div class="cards">
+    <div class="card">
+      <h3>App móvel</h3>
+      <div class="repo">mobile-app · Flutter 3.41 · Dart 3.11</div>
+      <ul>
+        <li><code>PqcTlsSupport</code>: sondagem no início do app que decide <code>TransportMode.postQuantum</code> ou <code>TransportMode.compatibility</code> e escolhe os trust anchors.</li>
+        <li><code>KeypairService</code>: gera a chave do dispositivo, ML-DSA-65 (pacote <code>pqcrypto</code>) ou ECDSA P-256 (<code>pointycastle</code>, assinatura determinística RFC 6979).</li>
+        <li><code>CsrService</code> e <code>PqcAsn1</code>: montam o PKCS#10 à mão (DER), com PKCS#8 seed-only para ML-DSA (RFC 9881) e RFC 5915 para EC.</li>
+        <li><code>EnrollmentOrchestrator</code>: orquestra token → OTK → CSR → certificado; <code>BootstrapClient</code> e <code>BankingClient</code> usam <code>SecurityContext</code> com as raízes do asset e o certificado do dispositivo.</li>
+        <li>Nunca aceita certificados arbitrários: não há <code>badCertificateCallback</code> permissivo.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>API gateway</h3>
+      <div class="repo">api-gateway · KrakenD 2.13 + HAProxy 3.2 / OpenSSL 3.5</div>
+      <ul>
+        <li><code>krakend-bootstrap.json</code> e <code>krakend-banking.json</code>: rotas, validação de JWT RS256 contra o JWKS (via egress 18082) e repasse do certificado do cliente ao backend.</li>
+        <li><code>tls/haproxy-bootstrap.cfg</code> e <code>tls/haproxy-banking.cfg</code>: os binds duais, os egressos estritos e os defaults globais estritos.</li>
+        <li><code>scripts/verify-pqc-gateway.sh</code> e <code>ci-validate.sh</code>: recusam qualquer configuração com RSA, TLS &lt; 1.3 ou um bind sem os sigalgs/curves esperados.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Backend</h3>
+      <div class="repo">backend · Spring Boot Kotlin · JDK 17 · BouncyCastle 1.86</div>
+      <ul>
+        <li><code>PostQuantumTls</code>: instala o provedor BCJSSE, fixa <code>jdk.tls.namedGroups=X25519MLKEM768</code> e os esquemas de assinatura <code>mldsa65</code>/<code>mldsa87</code>, carrega o PKCS#12 ML-DSA do serviço.</li>
+        <li><code>GatewayClientCertificateFilter</code>: exige o certificado do gateway no mTLS.</li>
+        <li><code>OtkController</code> e <code>CsrController</code>: emissão de OTK de uso único e recepção do CSR.</li>
+        <li><code>CsrValidator</code>: aceita apenas ML-DSA-65/87 e ECDSA P-256 (<code>secp256r1</code> nomeada), verifica a prova de posse e recusa RSA, EdDSA, ML-DSA-44 e outras curvas.</li>
+        <li><code>ScriptPkiAdapter</code>: chama <code>sign-csr.sh</code> e devolve a cadeia que o script escolheu (arquivo <code>.issuer</code>).</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Serviço externo simulado</h3>
+      <div class="repo">backend-client · Spring Boot Kotlin · BCJSSE</div>
+      <ul>
+        <li>Obtém token por client-credentials no Keycloak e chama o banco pelo listener banking do gateway com sua identidade ML-DSA-65.</li>
+        <li>Fica inteiramente na camada estrita: só oferece ML-DSA e o híbrido, então os listeners duais sempre lhe servem a cadeia ML-DSA.</li>
+        <li>Console web em <code>:8090</code> protegido por credenciais de operador.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Emissor OAuth2</h3>
+      <div class="repo">infrastructure · Keycloak 26 + keycloak-tls</div>
+      <ul>
+        <li>Keycloak escuta HTTP só em <code>127.0.0.1:8080</code> dentro do namespace; nunca termina TLS.</li>
+        <li><code>keycloak/haproxy-keycloak.cfg</code>: bind <code>:8443</code> dual (ECDSA P-256 e ML-DSA-65).</li>
+        <li>Emite JWT RS256 (Keycloak e KrakenD não têm JWS ML-DSA); os tokens só trafegam dentro das sessões TLS descritas aqui.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>PKI</h3>
+      <div class="repo">pki · Bash + OpenSSL ≥ 3.5 (host ou alpine/openssl:3.5.8)</div>
+      <ul>
+        <li><code>scripts/lib/openssl-pqc.sh</code>: constantes das duas famílias, resolução do binário OpenSSL ≥ 3.5, <code>pqc_key_family</code> e <code>pqc_require_family</code>.</li>
+        <li><code>bootstrap-local-ca.sh</code>: cria as duas hierarquias e sincroniza as raízes nos assets do app.</li>
+        <li><code>bootstrap-runtime-certs.sh</code>: identidades de runtime, bundles de confiança e fixtures negativas.</li>
+        <li><code>sign-csr.sh</code>: assina CSR de dispositivo na cadeia da família da chave.</li>
+        <li><code>pqc-handshake-tests.sh</code> e <code>negative-mtls-tests.sh</code>: evidência de runtime.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Infraestrutura</h3>
+      <div class="repo">infrastructure · Docker Compose · Terraform (AWS, GCP, Azure)</div>
+      <ul>
+        <li><code>compose.yaml</code>: cada terminador usa <code>network_mode: service:&lt;alvo&gt;</code>; todas as portas de host ligam em <code>127.0.0.1</code>.</li>
+        <li>Serviços de teste: <code>smoke-tests</code> (curl 8.16), <code>negative-mtls-tests</code> e <code>pqc-handshake-tests</code> (OpenSSL 3.5.8).</li>
+        <li>Módulo Terraform <code>pqc_transport</code> com os valores estritos e os <code>compat_*</code>, um caminho por nuvem, sem módulo genérico.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="fluxo">
+  <h2><span class="num">04</span>Fluxo de segurança fim a fim</h2>
+  <p>A primeira execução do app percorre um fluxo de onboarding em que a identidade do dispositivo é criada localmente e certificada pelo backend. Só depois disso as jornadas bancárias ficam acessíveis. Todos os passos passam pelo gateway; nenhum passa direto ao backend.</p>
+  <figure>
+    <div class="canvas">
+    <svg viewBox="0 0 1080 520" role="img" aria-label="Sequência de onboarding: token OAuth2 no Keycloak, OTK e CSR pelo gateway bootstrap, assinatura pela PKI no backend, e depois chamadas bancárias com mTLS pelo gateway banking.">
+      <defs>
+        <marker id="ah2-pq" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="pq-fill"/></marker>
+        <marker id="ah2-compat" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="compat-fill"/></marker>
+        <marker id="ah2-cur" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+      </defs>
+      <!-- lanes -->
+      <g font-size="12" font-weight="600" text-anchor="middle">
+        <rect x="20" y="20" width="180" height="40" rx="6" class="box"/><text x="110" y="45">App (dispositivo)</text>
+        <rect x="270" y="20" width="180" height="40" rx="6" class="box"/><text x="360" y="45">Keycloak (via keycloak-tls)</text>
+        <rect x="520" y="20" width="200" height="40" rx="6" class="box"/><text x="620" y="45">Gateway (bootstrap / banking)</text>
+        <rect x="800" y="20" width="260" height="40" rx="6" class="box"/><text x="930" y="45">Backend + PKI</text>
+      </g>
+      <g stroke="currentColor" stroke-dasharray="3 4" opacity="0.6">
+        <line x1="110" y1="60" x2="110" y2="500"/><line x1="360" y1="60" x2="360" y2="500"/><line x1="620" y1="60" x2="620" y2="500"/><line x1="930" y1="60" x2="930" y2="500"/>
+      </g>
+      <!-- 1 token -->
+      <line x1="110" y1="100" x2="360" y2="100" class="compat" stroke-width="2" marker-end="url(#ah2-compat)"/>
+      <text x="235" y="92" text-anchor="middle" font-size="11">1. POST /token (ROPC, usuário + senha) · TLS dual</text>
+      <line x1="360" y1="124" x2="110" y2="124" class="compat" stroke-width="2" marker-end="url(#ah2-compat)"/>
+      <text x="235" y="140" text-anchor="middle" font-size="11" class="muted-text">JWT RS256 (access token)</text>
+      <!-- 2 OTK -->
+      <line x1="110" y1="176" x2="620" y2="176" class="compat" stroke-width="2" marker-end="url(#ah2-compat)"/>
+      <text x="365" y="168" text-anchor="middle" font-size="11">2. POST /auth/otk (Bearer JWT) · gateway bootstrap :8080 · TLS dual</text>
+      <line x1="620" y1="176" x2="930" y2="176" class="pq" stroke-width="2" marker-end="url(#ah2-pq)"/>
+      <text x="775" y="168" text-anchor="middle" font-size="11" class="pq-text">egress 18081 · mTLS estrito</text>
+      <line x1="930" y1="200" x2="110" y2="200" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah2-cur)"/>
+      <text x="520" y="216" text-anchor="middle" font-size="11" class="muted-text">OTK de uso único, com validade curta, ligado ao sujeito do token</text>
+      <!-- 3 local keygen -->
+      <rect x="30" y="236" width="160" height="60" rx="6" class="box"/>
+      <text x="110" y="256" text-anchor="middle" font-size="11" font-weight="600">3. Gera chave e CSR</text>
+      <text x="110" y="272" text-anchor="middle" font-size="10.5" class="mono">ML-DSA-65 (seed-only)</text>
+      <text x="110" y="286" text-anchor="middle" font-size="10.5" class="mono">ou ECDSA P-256</text>
+      <!-- 4 CSR -->
+      <line x1="110" y1="326" x2="620" y2="326" class="compat" stroke-width="2" marker-end="url(#ah2-compat)"/>
+      <text x="365" y="318" text-anchor="middle" font-size="11">4. POST /auth/csr (JWT + OTK + PKCS#10) · TLS dual</text>
+      <line x1="620" y1="326" x2="930" y2="326" class="pq" stroke-width="2" marker-end="url(#ah2-pq)"/>
+      <text x="775" y="318" text-anchor="middle" font-size="11" class="pq-text">mTLS estrito</text>
+      <rect x="820" y="342" width="220" height="62" rx="6" class="box"/>
+      <text x="930" y="360" text-anchor="middle" font-size="11" font-weight="600">CsrValidator + sign-csr.sh</text>
+      <text x="930" y="376" text-anchor="middle" font-size="10.5">valida algoritmo e prova de posse;</text>
+      <text x="930" y="391" text-anchor="middle" font-size="10.5">assina na cadeia da família da chave</text>
+      <line x1="930" y1="426" x2="110" y2="426" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah2-cur)"/>
+      <text x="520" y="442" text-anchor="middle" font-size="11" class="muted-text">certificado do dispositivo + cadeia emissora (ML-DSA-87 ou ECDSA P-384)</text>
+      <!-- 5 banking -->
+      <line x1="110" y1="478" x2="620" y2="478" class="compat" stroke-width="2" marker-end="url(#ah2-compat)"/>
+      <text x="365" y="470" text-anchor="middle" font-size="11">5. mTLS com o cert do dispositivo + JWT · gateway banking :8443</text>
+      <line x1="620" y1="478" x2="930" y2="478" class="pq" stroke-width="2" marker-end="url(#ah2-pq)"/>
+      <text x="775" y="470" text-anchor="middle" font-size="11" class="pq-text">/pix/transfers · /statements · /profile</text>
+    </svg>
+    </div>
+    <figcaption>Figura 2. Onboarding e acesso. O par de chaves nunca sai do dispositivo: só o CSR viaja. O gateway valida o JWT e o certificado do cliente e reencaminha ao backend pelo hop estrito, repassando a identidade do dispositivo.</figcaption>
+  </figure>
+  <ol class="steps">
+    <li><strong>Autenticação OAuth2</strong>O app obtém um access token no Keycloak (fluxo de senha, ROPC, no v1). A conexão já usa TLS 1.3 com X25519MLKEM768 se o stack do cliente oferecer o grupo; a identidade do servidor é a que o handshake selecionar (ver <a href="#handshake">seção 08</a>).</li>
+    <li><strong>OTK (one-time key)</strong>Com o JWT, o app chama <code>/auth/otk</code> no listener bootstrap. O KrakenD valida a assinatura RS256 contra o JWKS que busca pelo egress estrito e encaminha ao backend, que emite uma chave de uso único ligada ao sujeito do token.</li>
+    <li><strong>Geração de chave e CSR no dispositivo</strong>O <code>KeypairService</code> gera ML-DSA-65 (modo pós-quântico) ou ECDSA P-256 (modo compatibilidade). O <code>CsrService</code> monta o PKCS#10 e o assina com a chave privada, que é a prova de posse.</li>
+    <li><strong>Emissão do certificado</strong><code>/auth/csr</code> consome o OTK; o <code>CsrValidator</code> verifica a família da chave e a assinatura do CSR; o <code>ScriptPkiAdapter</code> chama <code>sign-csr.sh</code>, que escolhe a cadeia (ML-DSA-87 ou ECDSA P-384) pela família da chave e responde com o certificado e o emissor.</li>
+    <li><strong>Acesso protegido</strong>O app monta um <code>SecurityContext</code> com o certificado e a chave e passa a chamar o listener banking com mTLS. O gateway exige o certificado (<code>verify required</code>) contra <code>ca-chain-all.crt</code>, valida o JWT e reencaminha ao backend com a identidade do dispositivo.</li>
+  </ol>
+</section>
+
+<section id="fundamentos">
+  <h2><span class="num">05</span>Fundamentos: ML-KEM e ML-DSA</h2>
+  <p>Um computador quântico com escala suficiente executaria o algoritmo de Shor e quebraria RSA, DSA, Diffie-Hellman e curvas elípticas, que sustentam todo o TLS clássico. Os algoritmos pós-quânticos padronizados pelo NIST em 2024 substituem exatamente essas duas funções: acordo de chave e assinatura digital.</p>
+  <h3>ML-KEM (FIPS 203): confidencialidade</h3>
+  <p>ML-KEM (Module-Lattice Key Encapsulation Mechanism, o antigo Kyber) é um KEM: uma parte publica uma chave de encapsulamento, a outra encapsula um segredo aleatório e envia o ciphertext, e ambas terminam com o mesmo segredo compartilhado. No TLS 1.3 isso entra no <code>key_share</code> do ClientHello e do ServerHello. O projeto usa o grupo <strong>X25519MLKEM768</strong>: o segredo final é a concatenação do segredo ML-KEM-768 com o segredo X25519. Se um dia ML-KEM for enfraquecido, a segurança clássica de X25519 permanece; se X25519 cair para o computador quântico, ML-KEM segura.</p>
+  <h3>ML-DSA (FIPS 204): autenticação</h3>
+  <p>ML-DSA (Module-Lattice Digital Signature Algorithm, o antigo Dilithium) é a assinatura pós-quântica de uso geral. No projeto ela aparece em três lugares: na assinatura dos certificados X.509 pela CA, na assinatura do CSR pelo dispositivo (prova de posse) e no <code>CertificateVerify</code> do handshake TLS, quando o servidor (ou o cliente no mTLS) prova que tem a chave privada do certificado. Os níveis escolhidos são ML-DSA-65 para folhas (categoria de segurança 3 do NIST) e ML-DSA-87 para as CAs (categoria 5), de modo que a raiz seja mais forte que o que ela assina. ML-DSA-44 (categoria 2) é recusado.</p>
+  <h3>Tamanhos e custo</h3>
+  <p>A diferença prática para a operação está nos tamanhos: certificados e handshakes ficam maiores. A tabela mostra por que a cadeia ML-DSA precisa de MTU e buffers TLS folgados, e por que o híbrido custa pouco a mais que X25519 puro.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Algoritmo</th><th>Papel no projeto</th><th class="num">Chave pública</th><th class="num">Assinatura / ciphertext</th><th>Padrão</th></tr></thead>
+      <tbody>
+        <tr><td>ML-KEM-768</td><td>KEM dentro de X25519MLKEM768</td><td class="num">1 184 B</td><td class="num">1 088 B (ciphertext)</td><td>FIPS 203</td></tr>
+        <tr><td>X25519</td><td>metade clássica do híbrido; grupo aceito na borda do app</td><td class="num">32 B</td><td class="num">32 B (key share)</td><td>RFC 7748</td></tr>
+        <tr><td>X25519MLKEM768</td><td>grupo TLS 1.3 (código 0x11EC)</td><td class="num">1 216 B (cliente)</td><td class="num">1 120 B (servidor)</td><td>draft-ietf-tls-ecdhe-mlkem</td></tr>
+        <tr><td>ML-DSA-65</td><td>folhas: serviços, gateway-client, dispositivos PQ</td><td class="num">1 952 B</td><td class="num">3 309 B</td><td>FIPS 204</td></tr>
+        <tr><td>ML-DSA-87</td><td>CA raiz e CA emissora</td><td class="num">2 592 B</td><td class="num">4 627 B</td><td>FIPS 204</td></tr>
+        <tr><td>ECDSA P-256</td><td>folhas de compatibilidade: gateway-server-compat, keycloak-server-compat, dispositivos compat</td><td class="num">64 B</td><td class="num">≈ 72 B (DER)</td><td>FIPS 186-5</td></tr>
+        <tr><td>ECDSA P-384</td><td>CA raiz e emissora de compatibilidade (ecdsa-with-SHA384)</td><td class="num">96 B</td><td class="num">≈ 104 B (DER)</td><td>FIPS 186-5</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Uma cadeia ML-DSA completa (folha ML-DSA-65 + emissora ML-DSA-87) soma cerca de 12 KB de certificados no handshake, contra menos de 1 KB de uma cadeia ECDSA. Isso é aceitável para uma API bancária, mas explica por que os terminadores usam HAProxy com OpenSSL 3.5 (que fragmenta e reagrupa o handshake sem problema) e por que o CI mede o handshake real em vez de só validar arquivos.</p>
+  <h3>Codificação das chaves</h3>
+  <ul>
+    <li><strong>ML-DSA</strong>: chave privada em PKCS#8 no formato <em>seed-only</em> (RFC 9881), um OCTET STRING de 32 bytes com tag contextual <code>[0]</code>. É o único formato que o BoringSSL do Dart aceita e o que o OpenSSL 3.5 e o BouncyCastle importam sem ambiguidade. OIDs: <code>2.16.840.1.101.3.4.3.18</code> (ML-DSA-65) e <code>2.16.840.1.101.3.4.3.19</code> (ML-DSA-87).</li>
+    <li><strong>ECDSA P-256</strong>: chave privada em RFC 5915 dentro de PKCS#8, curva nomeada <code>secp256r1</code> obrigatória (o backend recusa parâmetros explícitos), assinatura <code>ecdsa-with-SHA256</code> na folha e <code>ecdsa-with-SHA384</code> na cadeia.</li>
+    <li><strong>Identidades de serviço</strong>: PKCS#12 com a folha ML-DSA-65 e a cadeia, carregados pelo BCJSSE nos serviços JVM; PEM concatenado (chave + cert + cadeia) para os binds do HAProxy.</li>
+  </ul>
+</section>
+
+<section id="camadas">
+  <h2><span class="num">06</span>As duas camadas de transporte</h2>
+  <p>A política é escolhida por classe de listener, não por ambiente. A mesma configuração vale para o Compose local e para as três nuvens, o que é a condição para ela ser viável em produção.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Camada</th><th>Onde</th><th>Autenticação</th><th>Troca de chaves</th><th>Versão / cifras</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="tier pq">Estrita</span><br>pós-quântica somente</td>
+          <td>backend <code>:8080</code> (mTLS); egressos do gateway ao backend (18081) e ao emissor (18082); backend-client → gateway e emissor; backend → JWKS do emissor</td>
+          <td>Folhas <strong>ML-DSA-65</strong> sob CA <strong>ML-DSA-87</strong>; esquemas <code>mldsa65</code> e <code>mldsa87</code> apenas, dos dois lados (<code>sigalgs</code> e <code>client-sigalgs</code>)</td>
+          <td><strong><code>X25519MLKEM768</code></strong> apenas; um cliente que só oferece X25519 ou P-256 é recusado no handshake</td>
+          <td>TLS 1.3 apenas; AES-256-GCM, ChaCha20-Poly1305, AES-128-GCM</td>
+        </tr>
+        <tr>
+          <td><span class="tier compat">Dual</span><br>borda do app</td>
+          <td>emissor <code>:8443</code>, gateway bootstrap <code>:8080</code>, gateway banking <code>:8443</code></td>
+          <td>Duas identidades no mesmo bind: <strong>ML-DSA-65</strong> para clientes que só oferecem esquemas ML-DSA; <strong>ECDSA P-256</strong> (CA P-384) para os demais. Certificados de cliente de qualquer uma das duas cadeias (<code>ca-chain-all.crt</code>). RSA e ML-DSA-44 recusados.</td>
+          <td><code>X25519MLKEM768</code> preferido, <code>X25519</code> aceito; nenhum grupo NIST P-*</td>
+          <td>TLS 1.3 apenas; mesmas cifras</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>A camada estrita é o que já existia e não muda onde os dois lados estão sob nosso controle: OpenSSL 3.5 nos terminadores, BCJSSE nos serviços JVM, curl 8.16 / OpenSSL 3.5 nos clientes de teste. A camada dual existe porque a borda do app é onde os ambientes diferem: o TLS do Dart e dos navegadores não verifica ML-DSA. Uma borda estrita não seria alcançável pelo app em nenhuma versão do Dart; uma borda só clássica desperdiçaria a capacidade pós-quântica dos serviços que também a usam (backend-client, egress JWKS). A identidade dual atende os dois.</p>
+  <div class="callout compat">
+    <p><strong>Por que ECDSA e não RSA na compatibilidade.</strong> RSA-2048 dá assinaturas de 256 B e chaves lentas; ECDSA P-256 dá assinaturas de 72 B, é universalmente suportado e mantém o handshake pequeno para o app. Além disso, banir RSA em todo o projeto elimina a classe inteira de erros de configuração (chaves fracas, PKCS#1 v1.5). O CI do gateway e da PKI falha se encontrar RSA em qualquer material.</p>
+  </div>
+</section>
+
+<section id="capacidades">
+  <h2><span class="num">07</span>Matriz de capacidades dos clientes</h2>
+  <p>A decisão pelas duas camadas foi tirada do código-fonte dos stacks TLS envolvidos, não de suposições. É esta matriz que a borda do app precisa atender.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Stack TLS do cliente</th><th>Verifica certificado ML-DSA</th><th>Oferece ML-DSA em signature_algorithms</th><th>X25519MLKEM768 por padrão</th><th>Camada resultante</th></tr></thead>
+      <tbody>
+        <tr><td><code>dart:io</code> no Dart 3.11 (Flutter 3.41, versão fixada)</td><td>não (<code>UNSUPPORTED_ALGORITHM</code> ao carregar a raiz ML-DSA)</td><td>não</td><td>não (grupos padrão: X25519, P-256, P-384)</td><td><span class="tier compat">compatibilidade</span></td></tr>
+        <tr><td><code>dart:io</code> no Dart 3.13 (Flutter 3.47)</td><td>sim (BoringSSL <code>EVP_PKEY_ML_DSA_*</code>, X.509 verificado)</td><td>não (<code>kVerifySignatureAlgorithms</code> é só clássico e <code>SecurityContext</code> não expõe)</td><td>não (mesma lista, não configurável do Dart)</td><td><span class="tier compat">compatibilidade</span></td></tr>
+        <tr><td>Navegadores (páginas de login do Keycloak)</td><td>não</td><td>não</td><td>sim (Chrome, Firefox, Safari 26)</td><td><span class="tier compat">compat + híbrido</span></td></tr>
+        <tr><td>HAProxy 3.2 / OpenSSL 3.5 (terminadores, egressos)</td><td>sim</td><td>sim</td><td>sim</td><td><span class="tier pq">estrita</span></td></tr>
+        <tr><td>BouncyCastle BCJSSE 1.86 (backend, backend-client)</td><td>sim</td><td>sim</td><td>sim</td><td><span class="tier pq">estrita</span></td></tr>
+        <tr><td>curl 8.16 / OpenSSL 3.5.8 (smoke e handshake tests)</td><td>sim</td><td>sim</td><td>sim</td><td>as duas, conforme o teste</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Conclusão da matriz: <strong>ML-KEM-768 no híbrido X25519MLKEM768</strong> é o único grupo pós-quântico que todo stack acima implementa, então é usado para a troca de chaves em todo lugar. <strong>ML-DSA-65</strong> é usado para autenticação onde o par verifica; <strong>ECDSA P-256 sob P-384</strong> cobre o resto. Quando o Dart passar a oferecer ML-DSA e o híbrido, o app migra sozinho (ver <a href="#limites">seção 14</a>).</p>
+</section>
+
+<section id="handshake">
+  <h2><span class="num">08</span>Decisão do handshake nos listeners duais</h2>
+  <p>Num bind dual o HAProxy 3.2 carrega dois certificados. A escolha é feita pelo próprio HAProxy a partir do ClientHello, sem lógica adicional na aplicação. Duas decisões independentes acontecem: qual identidade servir e qual grupo negociar.</p>
+  <figure>
+    <div class="canvas">
+    <svg viewBox="0 0 1080 430" role="img" aria-label="Fluxo de decisão do handshake: a partir do ClientHello, os esquemas de assinatura escolhem entre a identidade ECDSA e a ML-DSA, e os grupos oferecidos escolhem entre X25519MLKEM768 e X25519; RSA, ML-DSA-44 e TLS 1.2 são recusados.">
+      <defs>
+        <marker id="ah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+        <marker id="ah3-pq" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="pq-fill"/></marker>
+        <marker id="ah3-compat" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="compat-fill"/></marker>
+        <marker id="ah3-danger" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="danger-fill"/></marker>
+      </defs>
+      <rect x="20" y="170" width="170" height="90" rx="8" class="box"/>
+      <text x="105" y="196" text-anchor="middle" font-size="13" font-weight="600">ClientHello</text>
+      <text x="105" y="216" text-anchor="middle" font-size="11" class="mono">signature_algorithms</text>
+      <text x="105" y="232" text-anchor="middle" font-size="11" class="mono">supported_groups</text>
+      <text x="105" y="248" text-anchor="middle" font-size="11" class="mono">SNI · TLS 1.3</text>
+
+      <!-- gate TLS version -->
+      <line x1="190" y1="215" x2="250" y2="215" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah3)"/>
+      <rect x="250" y="185" width="130" height="60" rx="8" class="box"/>
+      <text x="315" y="210" text-anchor="middle" font-size="12" font-weight="600">TLS 1.3?</text>
+      <text x="315" y="228" text-anchor="middle" font-size="11" class="muted-text">ssl-min-ver TLSv1.3</text>
+      <line x1="315" y1="245" x2="315" y2="400" class="danger" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#ah3-danger)"/>
+      <text x="305" y="395" text-anchor="end" font-size="11" class="danger-text">não: alerta protocol_version</text>
+
+      <!-- sigalg decision -->
+      <line x1="380" y1="200" x2="440" y2="120" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah3)"/>
+      <text x="382" y="150" font-size="11" class="muted-text">sim</text>
+      <rect x="440" y="70" width="270" height="100" rx="8" class="box"/>
+      <text x="575" y="94" text-anchor="middle" font-size="12" font-weight="600">Identidade do servidor</text>
+      <text x="575" y="112" text-anchor="middle" font-size="11">cliente anuncia ecdsa_secp256r1_sha256?</text>
+      <text x="575" y="130" text-anchor="middle" font-size="10.5" class="muted-text">HAProxy: nó ECDSA se sim; nó "anônimo"</text>
+      <text x="575" y="146" text-anchor="middle" font-size="10.5" class="muted-text">(ML-DSA) se não oferece nem RSA nem ECDSA;</text>
+      <text x="575" y="162" text-anchor="middle" font-size="10.5" class="muted-text">sem SNI: primeiro crt (compat)</text>
+
+      <line x1="710" y1="95" x2="780" y2="60" class="compat" stroke-width="2" marker-end="url(#ah3-compat)"/>
+      <rect x="780" y="30" width="290" height="56" rx="8" class="box compat" style="stroke-width:1.5"/>
+      <text x="925" y="52" text-anchor="middle" font-size="12" font-weight="600" class="compat-text">gateway-server-compat.pem</text>
+      <text x="925" y="70" text-anchor="middle" font-size="10.5">ECDSA P-256 · cadeia P-384 · Dart, navegadores</text>
+
+      <line x1="710" y1="130" x2="780" y2="130" class="pq" stroke-width="2" marker-end="url(#ah3-pq)"/>
+      <rect x="780" y="102" width="290" height="56" rx="8" class="box pq" style="stroke-width:1.5"/>
+      <text x="925" y="124" text-anchor="middle" font-size="12" font-weight="600" class="pq-text">gateway-server.pem</text>
+      <text x="925" y="142" text-anchor="middle" font-size="10.5">ML-DSA-65 · cadeia ML-DSA-87 · BCJSSE, OpenSSL 3.5</text>
+
+      <line x1="710" y1="160" x2="780" y2="196" class="danger" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#ah3-danger)"/>
+      <rect x="780" y="174" width="290" height="44" rx="8" class="box danger" style="stroke-width:1.5"/>
+      <text x="925" y="192" text-anchor="middle" font-size="11" font-weight="600" class="danger-text">só RSA, ou só ML-DSA-44: handshake_failure</text>
+      <text x="925" y="208" text-anchor="middle" font-size="10.5" class="muted-text">sigalgs: mldsa65, mldsa87, ecdsa P-256, ecdsa P-384</text>
+
+      <!-- group decision -->
+      <line x1="380" y1="230" x2="440" y2="300" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah3)"/>
+      <rect x="440" y="260" width="270" height="90" rx="8" class="box"/>
+      <text x="575" y="284" text-anchor="middle" font-size="12" font-weight="600">Troca de chaves</text>
+      <text x="575" y="302" text-anchor="middle" font-size="11">cliente oferece X25519MLKEM768?</text>
+      <text x="575" y="320" text-anchor="middle" font-size="10.5" class="muted-text">OpenSSL escolhe o primeiro grupo</text>
+      <text x="575" y="336" text-anchor="middle" font-size="10.5" class="muted-text">da lista do servidor que o cliente tem</text>
+
+      <line x1="710" y1="285" x2="780" y2="270" class="pq" stroke-width="2" marker-end="url(#ah3-pq)"/>
+      <rect x="780" y="244" width="290" height="50" rx="8" class="box pq" style="stroke-width:1.5"/>
+      <text x="925" y="264" text-anchor="middle" font-size="12" font-weight="600" class="pq-text">X25519MLKEM768</text>
+      <text x="925" y="282" text-anchor="middle" font-size="10.5">ML-KEM-768 + X25519 · resiste a "colete agora"</text>
+
+      <line x1="710" y1="320" x2="780" y2="332" class="compat" stroke-width="2" marker-end="url(#ah3-compat)"/>
+      <rect x="780" y="308" width="290" height="50" rx="8" class="box compat" style="stroke-width:1.5"/>
+      <text x="925" y="328" text-anchor="middle" font-size="12" font-weight="600" class="compat-text">X25519</text>
+      <text x="925" y="346" text-anchor="middle" font-size="10.5">só na borda do app · recusado no hop estrito</text>
+
+      <line x1="710" y1="340" x2="780" y2="390" class="danger" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#ah3-danger)"/>
+      <rect x="780" y="372" width="290" height="44" rx="8" class="box danger" style="stroke-width:1.5"/>
+      <text x="925" y="390" text-anchor="middle" font-size="11" font-weight="600" class="danger-text">só P-256 / P-384 / FFDHE: handshake_failure</text>
+      <text x="925" y="406" text-anchor="middle" font-size="10.5" class="muted-text">curves X25519MLKEM768:X25519</text>
+    </svg>
+    </div>
+    <figcaption>Figura 3. Duas decisões independentes por handshake nos binds duais. Um cliente Dart 3.11 termina em ECDSA P-256 + X25519; um navegador em ECDSA P-256 + X25519MLKEM768; o backend-client e os egressos do gateway em ML-DSA-65 + X25519MLKEM768.</figcaption>
+  </figure>
+  <p>Detalhes importantes da seleção, verificados no código do HAProxy 3.2 (<code>ssl_clienthello.c</code>) e validados ao vivo com HAProxy 3.2.0 sobre OpenSSL 3.5.8:</p>
+  <ul>
+    <li>O HAProxy indexa os certificados por SNI e por tipo de chave. Um cliente que anuncia esquemas ECDSA recebe o nó ECDSA. O certificado ML-DSA fica no nó "anônimo", escolhido apenas quando o cliente não oferece nem RSA nem ECDSA. É exatamente o que BCJSSE e os egressos estritos fazem.</li>
+    <li>Sem SNI o HAProxy serve o primeiro <code>crt</code> do bind. Por isso o certificado de compatibilidade é listado primeiro: um dispositivo físico que alcança o gateway por IP de LAN ainda funciona. Clientes que só falam ML-DSA sempre conectam por hostname, o que todo serviço já faz.</li>
+    <li>Com o certificado escolhido, o esquema de assinatura do <code>CertificateVerify</code> é o do próprio certificado (<code>mldsa65</code> ou <code>ecdsa_secp256r1_sha256</code>), e a lista <code>sigalgs</code> do bind também limita o que o cliente pode oferecer: RSA-PSS, Ed25519 e ML-DSA-44 nunca estão nela.</li>
+    <li>O grupo é decidido pelo OpenSSL: o servidor tem preferência e escolhe o primeiro grupo de <code>curves X25519MLKEM768:X25519</code> que o cliente também oferece. Se o cliente não mandou <code>key_share</code> do grupo escolhido, o servidor pede um HelloRetryRequest.</li>
+    <li>No listener banking, <code>verify required</code> com <code>ca-file ca-chain-all.crt</code> aceita certificados de cliente das duas cadeias, e <code>client-sigalgs</code> restringe as assinaturas do cliente à mesma lista. As fixtures negativas (cliente RSA, ML-DSA-44 e ECDSA de uma CA não confiável) são recusadas no handshake, antes de qualquer HTTP.</li>
+  </ul>
+  <p>Nos hops estritos não há decisão: os defaults globais do HAProxy (<code>ssl-default-bind-sigalgs mldsa65:mldsa87</code>, <code>ssl-default-server-curves X25519MLKEM768</code>) e as propriedades <code>jdk.tls.*</code> do BCJSSE só admitem uma resposta. Qualquer outra oferta termina em <code>handshake_failure</code>.</p>
+</section>
+
+<section id="pki">
+  <h2><span class="num">09</span>PKI: duas cadeias que não se cruzam</h2>
+  <p>A PKI local mantém duas hierarquias independentes, cada uma com raiz e CA emissora. Elas nunca se assinam mutuamente: um certificado ECDSA nunca é ancorado numa raiz ML-DSA, e vice-versa. Assim, uma raiz ML-DSA-87 nunca herda a exposição quântica de uma assinatura ECDSA, e a cadeia de compatibilidade pode ser aposentada sem tocar na outra.</p>
+  <figure>
+    <div class="canvas">
+    <svg viewBox="0 0 1080 400" role="img" aria-label="Duas hierarquias de CA: a ML-DSA-87 emite as identidades de todos os serviços e dos dispositivos pós-quânticos; a ECDSA P-384 emite apenas as identidades de compatibilidade dos listeners do app e dos dispositivos em modo compatibilidade. Bundles de confiança unem as raízes onde ambas são aceitas.">
+      <defs>
+        <marker id="ah4-pq" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="pq-fill"/></marker>
+        <marker id="ah4-compat" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="compat-fill"/></marker>
+      </defs>
+      <!-- PQ chain -->
+      <rect x="40" y="30" width="460" height="330" rx="10" class="ns pq"/>
+      <text x="60" y="52" font-size="12" font-weight="600" class="pq-text">Cadeia pós-quântica (trust/)</text>
+      <rect x="150" y="66" width="240" height="46" rx="6" class="box pq" style="stroke-width:1.5"/>
+      <text x="270" y="86" text-anchor="middle" font-size="12" font-weight="600">root-ca.crt</text>
+      <text x="270" y="102" text-anchor="middle" font-size="11" class="mono">ML-DSA-87 · autoassinada</text>
+      <line x1="270" y1="112" x2="270" y2="140" class="pq" stroke-width="2" marker-end="url(#ah4-pq)"/>
+      <rect x="150" y="140" width="240" height="46" rx="6" class="box pq" style="stroke-width:1.5"/>
+      <text x="270" y="160" text-anchor="middle" font-size="12" font-weight="600">issuing-ca.crt</text>
+      <text x="270" y="176" text-anchor="middle" font-size="11" class="mono">ML-DSA-87 · assina folhas ML-DSA-65</text>
+      <line x1="270" y1="186" x2="130" y2="230" class="pq" stroke-width="2" marker-end="url(#ah4-pq)"/>
+      <line x1="270" y1="186" x2="270" y2="230" class="pq" stroke-width="2" marker-end="url(#ah4-pq)"/>
+      <line x1="270" y1="186" x2="410" y2="230" class="pq" stroke-width="2" marker-end="url(#ah4-pq)"/>
+      <g font-size="11" text-anchor="middle">
+        <rect x="60" y="230" width="140" height="110" rx="6" class="box"/>
+        <text x="130" y="250" font-weight="600">Serviços</text>
+        <text x="130" y="268" class="mono">backend-server</text>
+        <text x="130" y="284" class="mono">gateway-server</text>
+        <text x="130" y="300" class="mono">gateway-client</text>
+        <text x="130" y="316" class="mono">keycloak-server</text>
+        <text x="130" y="332" class="mono">backend-client</text>
+        <rect x="205" y="230" width="130" height="110" rx="6" class="box"/>
+        <text x="270" y="250" font-weight="600">Testes</text>
+        <text x="270" y="268" class="mono" font-size="10.5">mobile-smoke-client</text>
+        <text x="270" y="284" class="mono">pqc-handshake</text>
+        <text x="270" y="300" class="mono">smoke-enroll.csr</text>
+        <rect x="340" y="230" width="140" height="110" rx="6" class="box"/>
+        <text x="410" y="250" font-weight="600">Dispositivos PQ</text>
+        <text x="410" y="268">CSR ML-DSA-65</text>
+        <text x="410" y="284">assinado por</text>
+        <text x="410" y="300" class="mono">sign-csr.sh</text>
+        <text x="410" y="318" class="muted-text">modo postQuantum</text>
+      </g>
+      <text x="270" y="354" text-anchor="middle" font-size="11" class="pq-text">todo serviço tem identidade ML-DSA-65; nenhum serviço tem identidade compat</text>
+
+      <!-- Compat chain -->
+      <rect x="560" y="30" width="480" height="330" rx="10" class="ns compat"/>
+      <text x="580" y="52" font-size="12" font-weight="600" class="compat-text">Cadeia de compatibilidade (trust/)</text>
+      <rect x="680" y="66" width="240" height="46" rx="6" class="box compat" style="stroke-width:1.5"/>
+      <text x="800" y="86" text-anchor="middle" font-size="12" font-weight="600">root-ca-compat.crt</text>
+      <text x="800" y="102" text-anchor="middle" font-size="11" class="mono">ECDSA P-384 · autoassinada</text>
+      <line x1="800" y1="112" x2="800" y2="140" class="compat" stroke-width="2" marker-end="url(#ah4-compat)"/>
+      <rect x="680" y="140" width="240" height="46" rx="6" class="box compat" style="stroke-width:1.5"/>
+      <text x="800" y="160" text-anchor="middle" font-size="12" font-weight="600">issuing-ca-compat.crt</text>
+      <text x="800" y="176" text-anchor="middle" font-size="11" class="mono">ECDSA P-384 · ecdsa-with-SHA384</text>
+      <line x1="800" y1="186" x2="667" y2="230" class="compat" stroke-width="2" marker-end="url(#ah4-compat)"/>
+      <line x1="800" y1="186" x2="932" y2="230" class="compat" stroke-width="2" marker-end="url(#ah4-compat)"/>
+      <g font-size="11" text-anchor="middle">
+        <rect x="580" y="230" width="175" height="110" rx="6" class="box"/>
+        <text x="667" y="250" font-weight="600">Listeners do app</text>
+        <text x="667" y="268" class="mono">gateway-server-compat</text>
+        <text x="667" y="284" class="mono">keycloak-server-compat</text>
+        <text x="667" y="306" class="muted-text">ECDSA P-256 · listados</text>
+        <text x="667" y="322" class="muted-text">primeiro no bind (sem SNI)</text>
+        <rect x="840" y="230" width="185" height="110" rx="6" class="box"/>
+        <text x="932" y="250" font-weight="600">Dispositivos compat</text>
+        <text x="932" y="268">CSR ECDSA P-256</text>
+        <text x="932" y="284" class="mono" font-size="10.5">mobile-smoke-client-compat</text>
+        <text x="932" y="300" class="mono" font-size="10.5">smoke-enroll-compat.csr</text>
+        <text x="932" y="318" class="muted-text">modo compatibility</text>
+      </g>
+      <text x="800" y="354" text-anchor="middle" font-size="11" class="compat-text">nunca cross-sign com a cadeia ML-DSA</text>
+
+      <!-- bundles -->
+      <text x="540" y="385" text-anchor="middle" font-size="11" class="muted-text">bundles: ca-chain.crt (ML-DSA) · ca-chain-compat.crt · ca-chain-all.crt (união, banking verify) · trust-anchors.crt (duas raízes, app e testes)</text>
+    </svg>
+    </div>
+    <figcaption>Figura 4. As duas hierarquias e quem cada uma emite. A cadeia ML-DSA é a única que emite identidades de serviço; a cadeia ECDSA emite apenas as identidades de compatibilidade dos listeners do app e os certificados de dispositivos em modo compatibilidade.</figcaption>
+  </figure>
+  <h3>Ciclo de vida</h3>
+  <ul>
+    <li><strong>Bootstrap</strong>: <code>bootstrap-local-ca.sh</code> cria as duas raízes e emissoras com OpenSSL ≥ 3.5 (o script resolve o binário no host ou roda <code>alpine/openssl:3.5.8</code>) e copia <code>root-ca.crt</code> e <code>root-ca-compat.crt</code> para <code>mobile-app/assets/local-ca/</code>.</li>
+    <li><strong>Identidades de runtime</strong>: <code>bootstrap-runtime-certs.sh</code> emite as folhas ML-DSA-65 de todos os serviços, as duas folhas ECDSA P-256 de compatibilidade, os PKCS#12 dos serviços JVM, os PEM concatenados do HAProxy, os bundles e as fixtures negativas (<code>untrusted-compat-client</code>, cliente RSA, cliente ML-DSA-44).</li>
+    <li><strong>Emissão para dispositivos</strong>: <code>sign-csr.sh</code> lê a chave pública do CSR, determina a família (<code>pqc_key_family</code>), exige ML-DSA-65/87 ou ECDSA P-256, assina com a emissora certa (<code>-sha384</code> na cadeia compat; ML-DSA não usa digest externo), grava <code>&lt;folha&gt;.issuer</code> e imprime <code>sign-csr-ok (pqc|compat: FAMÍLIA, ASSINATURA)</code>.</li>
+    <li><strong>Verificação</strong>: <code>verify-trust-anchors.sh</code> e <code>verify-runtime-certs.sh</code> checam algoritmos, ausência de cross-signing, que nenhum serviço tem identidade compat e que só os dois listeners do app têm; <code>ci-validate.sh</code> encadeia tudo.</li>
+    <li><strong>Revogação e renovação</strong>: no v1 a rotação é por reemissão (os scripts são idempotentes e os bundles são recarregados nos containers). A decisão de spec é usar um PKI open source como OpenXPKI se o KrakenD não provar suportar o ciclo completo; nada do KrakenD é usado para PKI hoje.</li>
+  </ul>
+</section>
+
+<section id="implementacao">
+  <h2><span class="num">10</span>Implementação por repositório</h2>
+
+  <h3>api-gateway: os binds do HAProxy</h3>
+  <p>Os terminadores usam a mesma imagem (<code>Dockerfile.tls</code>, HAProxy 3.2 sobre OpenSSL 3.5). Os defaults globais são estritos e valem para todos os egressos; só os binds voltados ao app os relaxam explicitamente.</p>
+<pre><code># tls/haproxy-banking.cfg (trecho)
+global
+  ssl-default-bind-options   ssl-min-ver TLSv1.3 ssl-max-ver TLSv1.3
+  ssl-default-server-options ssl-min-ver TLSv1.3 ssl-max-ver TLSv1.3
+  ssl-default-bind-curves    X25519MLKEM768
+  ssl-default-server-curves  X25519MLKEM768
+  ssl-default-bind-sigalgs   mldsa65:mldsa87
+  ssl-default-bind-client-sigalgs mldsa65:mldsa87
+  ssl-default-server-sigalgs mldsa65:mldsa87
+  ssl-default-server-client-sigalgs mldsa65:mldsa87
+  ssl-default-bind-ciphersuites TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256
+
+frontend banking_ingress          # borda do app: identidade dual + mTLS
+  bind :8443 ssl crt /etc/quantum-bank/tls/gateway-server-compat.pem \
+                 crt /etc/quantum-bank/tls/gateway-server.pem \
+                 ca-file /etc/quantum-bank/tls/ca-chain-all.crt verify required \
+                 curves X25519MLKEM768:X25519 \
+                 sigalgs        mldsa65:mldsa87:ecdsa_secp256r1_sha256:ecdsa_secp384r1_sha384 \
+                 client-sigalgs mldsa65:mldsa87:ecdsa_secp256r1_sha256:ecdsa_secp384r1_sha384 \
+                 alpn http/1.1
+backend krakend_banking
+  server krakend 127.0.0.1:18443   # loopback, dentro do namespace
+
+frontend backend_egress           # KrakenD -> HAProxy -> backend (estrito, herda os defaults)
+  bind 127.0.0.1:18081
+backend backend_mtls
+  server backend backend:8080 ssl crt /etc/quantum-bank/tls/gateway-client.pem \
+                 ca-file /etc/quantum-bank/tls/ca-chain.crt verify required sni str(backend)</code></pre>
+  <p>O KrakenD (<code>krakend-banking.json</code>) escuta em <code>127.0.0.1:18443</code> sem TLS, valida o JWT RS256 usando o JWKS obtido por <code>http://127.0.0.1:18082</code> (que o HAProxy converte num hop estrito até o emissor) e chama o backend em <code>http://127.0.0.1:18081</code>. Como os dois processos compartilham o namespace de rede, nada disso é alcançável de fora do container.</p>
+
+  <h3>infrastructure: terminadores no namespace</h3>
+<pre><code># compose.yaml (trecho)
+gateway-banking:
+  ports: ["${BIND_ADDRESS:-127.0.0.1}:${GATEWAY_BANKING_PORT:-8443}:8443"]
+gateway-banking-tls:
+  network_mode: "service:gateway-banking"   # mesma pilha de rede do KrakenD
+  volumes: [ "../pki/runtime:/etc/quantum-bank/tls:ro" ]
+keycloak:
+  ports: ["${BIND_ADDRESS:-127.0.0.1}:8180:8443"]
+keycloak-tls:
+  network_mode: "service:keycloak"</code></pre>
+  <p>O padrão <code>network_mode: service:</code> é o que permite dizer que KrakenD e Keycloak "não terminam TLS" sem abrir uma porta HTTP na rede do Compose. Os mesmos três serviços de teste (<code>smoke-tests</code>, <code>negative-mtls-tests</code>, <code>pqc-handshake-tests</code>) exercitam as duas classes de dispositivo, ML-DSA-65 e ECDSA P-256, inclusive o enrollment e uma chamada bancária com grupo clássico (<code>--curves X25519</code>).</p>
+
+  <h3>backend: BCJSSE em processo</h3>
+  <p>O backend não tem terminador: o próprio Spring Boot escuta TLS com o provedor BouncyCastle BCJSSE, que implementa ML-DSA e X25519MLKEM768 em Java 17 sem depender da JVM. A classe <code>PostQuantumTls</code> registra os provedores <code>BC</code> e <code>BCJSSE</code> antes do Tomcat, carrega o PKCS#12 ML-DSA-65 do serviço e fixa as propriedades de sistema:</p>
+<pre><code>jdk.tls.namedGroups            = X25519MLKEM768
+jdk.tls.server.SignatureSchemes = mldsa65,mldsa87
+jdk.tls.client.SignatureSchemes = mldsa65,mldsa87
+server.ssl.client-auth          = need         # mTLS obrigatório
+server.ssl.trust-store          = ca-chain (ML-DSA somente)</code></pre>
+  <p>Isso significa que o backend recusa, dentro do handshake, um cliente com certificado ECDSA (mesmo que válido na cadeia compat), um cliente RSA e um cliente que só oferece X25519: os testes do <code>gradle check</code> abrem handshakes reais em loopback e verificam cada recusa. O <code>GatewayClientCertificateFilter</code> ainda confere que o certificado apresentado é o do gateway.</p>
+  <p>Na emissão, o <code>CsrValidator</code> extrai o algoritmo da <code>SubjectPublicKeyInfo</code> do CSR (<code>keyFamilyOrNull</code>): aceita os OIDs de ML-DSA-65 e ML-DSA-87 e o par <code>id-ecPublicKey</code> + <code>secp256r1</code>; qualquer outra coisa (RSA, Ed25519, ML-DSA-44, P-384 numa folha, curva explícita) é recusada com erro de validação antes de tocar na PKI. Depois verifica a assinatura do CSR com a chave pública embutida (prova de posse) e só então chama o <code>ScriptPkiAdapter</code>, que executa <code>sign-csr.sh</code> e devolve o certificado com a cadeia indicada no arquivo <code>.issuer</code>.</p>
+
+  <h3>mobile-app: seleção de modo e identidade</h3>
+  <p>O Dart não expõe <code>signature_algorithms</code> nem a lista de grupos, então o app não pode "pedir" ML-DSA. O que ele pode fazer é descobrir, no início, se o stack consegue verificar uma raiz ML-DSA e escolher o modo de transporte de acordo:</p>
+<pre><code>// lib/core/tls/pqc_tls_support.dart (essência)
+enum TransportMode { postQuantum, compatibility }
+
+Future&lt;PqcTransportStatus&gt; probe() async {
+  try {
+    SecurityContext(withTrustedRoots: false)
+      ..setTrustedCertificatesBytes(rootCaMlDsa87Pem);   // raiz ML-DSA-87
+    return PqcTransportStatus(mode: TransportMode.postQuantum);
+  } on TlsException {                                    // UNSUPPORTED_ALGORITHM no Dart 3.11
+    return PqcTransportStatus(mode: TransportMode.compatibility);
+  }
+}
+
+List&lt;Uint8List&gt; trustAnchorsFor(TransportMode mode) =&gt; switch (mode) {
+  TransportMode.postQuantum   =&gt; [rootCaMlDsa87Pem, rootCaCompatPem],
+  TransportMode.compatibility =&gt; [rootCaCompatPem],
+};</code></pre>
+  <ul>
+    <li><strong>Modo pós-quântico</strong>: <code>KeypairService.generateForTransport</code> cria um <code>MlDsaKeyPair</code> (ML-DSA-65 via <code>pqcrypto</code>); <code>PqcAsn1</code> serializa a chave em PKCS#8 seed-only e o CSR com a assinatura ML-DSA; as duas raízes são confiadas.</li>
+    <li><strong>Modo compatibilidade</strong>: cria um <code>EcdsaP256KeyPair</code> (<code>pointycastle</code>, RFC 6979 determinístico) e um CSR <code>ecdsa-with-SHA256</code>; só a raiz ECDSA é confiada, porque a ML-DSA não pode ser carregada.</li>
+    <li>Em ambos os modos os clientes HTTP usam <code>SecurityContext(withTrustedRoots: false)</code> só com as raízes do projeto e o certificado do dispositivo. Não há callback de certificado permissivo, e o estado do app (<code>AppState.transportLabel</code>) mostra ao usuário em que modo ele está.</li>
+    <li>O script <code>scripts/verify-pqc-csr-interop.sh</code> gera os dois CSRs e as duas chaves com <code>tool/emit_ml_dsa_csr.dart</code> e prova, com OpenSSL 3.5, que são parseáveis e verificáveis fora do Dart.</li>
+  </ul>
+
+  <h3>backend-client: sempre estrito</h3>
+  <p>O simulador de serviço externo usa o mesmo instalador BCJSSE do backend, com sua identidade ML-DSA-65 e apenas o <code>ca-chain.crt</code> ML-DSA como truststore. Ele só oferece <code>mldsa65</code>/<code>mldsa87</code> e <code>X25519MLKEM768</code>; assim, mesmo nos listeners duais (token no emissor e chamadas no banking), o HAProxy lhe serve a cadeia ML-DSA. É a prova de que a borda dual não rebaixa quem consegue mais.</p>
+</section>
+
+<section id="cloud">
+  <h2><span class="num">11</span>Nuvem: AWS, GCP e Azure</h2>
+  <p>Os caminhos Terraform reproduzem a topologia do Compose: o container do gateway e o terminador como sidecar compartilhando a rede da task. O módulo <code>pqc_transport</code> carrega os valores estritos e os <code>compat_*</code> (nomes dos certificados de compatibilidade, listas de curvas e sigalgs) e cada nuvem tem seu próprio caminho, sem módulo genérico que esconda as diferenças.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Nuvem</th><th>Como o TLS chega ao sidecar</th><th>Observação</th></tr></thead>
+      <tbody>
+        <tr><td>AWS (ECS)</td><td>Task ENI exposta diretamente ou NLB em modo TCP passthrough</td><td>O NLB não inspeciona TLS; o sidecar HAProxy termina com as identidades do projeto.</td></tr>
+        <tr><td>Azure (Container Apps)</td><td>Ingress TCP até o sidecar</td><td>Mesma topologia; sem terminação gerenciada no caminho.</td></tr>
+        <tr><td>GCP (Cloud Run)</td><td>Precisa de um TCP passthrough na frente</td><td>O ingress HTTPS gerenciado do Cloud Run termina TLS na borda do Google com certificados clássicos; usado diretamente, ele quebraria a identidade ML-DSA, o mTLS e o grupo híbrido até o cliente.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout warn">
+    <p><strong>Requisito de produção.</strong> Qualquer balanceador ou WAF que termine TLS entre o dispositivo e o sidecar substitui a identidade do projeto pela dele e elimina o mTLS do listener banking. A garantia pós-quântica só vale com passthrough TCP até o terminador.</p>
+  </div>
+</section>
+
+<section id="archimate">
+  <h2><span class="num">12</span>Visão ArchiMate 3.0 (draw.io)</h2>
+  <p>A arquitetura de componentes foi modelada em ArchiMate 3.0 com a biblioteca nativa do draw.io (<code>mxgraph.archimate3</code>). O arquivo fonte é <code>docs/pqc-architecture-archimate.drawio</code> neste repositório; o botão abaixo abre o mesmo modelo no diagrams.net, editável, sem depender de nenhum servidor além do próprio editor.</p>
+  <div class="actions">
+    <a class="btn primary" href="https://app.diagrams.net/#R7V1tc9q6Ev41zCR3BsYvvOUjkNCepjnNLZlz7rczwhagE2G5kslLf%2F3dlfyKTUIbcNLG7QzYkmzsfXZXq0crpeVO1g8fJAlXV8KnvOVY%2FkPLPW85jt23LPjCkse4xEpKlpL5cVlWMGPfadIwLt0wn6pCw0gIHrGwWOiJIKBeVCgjUor7YrOF4MVfDcmSlgpmHuHl0r%2BZH62SF%2Bt1s4qPlC1XyU%2Fb%2FTNTsyZJ6%2FhV1Ir44j5X5F603IkUIjJH64cJ5Si%2BRDDmuumO2vTJJA2ifS5YjsLQXHNH%2BCZ%2BvwlZE58gQhQ%2BRiFnHmlN3NZooD9dET979JhIRN2zNScBnI1X0ZpDoQ2H9ysW0VlIPGx1D8oAZT5RK%2BrHDfDkmkQRlQGU9OGeXShdMM4nggsJZYHQN1WRFLc0KWw5bo%2F05wOia4iMYhVxhni1CKJZ%2FGR2cm7qbRfOPcE5CRWb6xYWlMTvT2VEH3aK0U7BAb2mYk0j%2BQhN4gsSOB%2BLp%2Fc57ej148JVTjO6blxIYpVcprfOQIODGLdqDNdizuBltlH874YE0WYNhWMS3MLXVdzOOpnyDQodDt1O1z4twZnDUGwizgIQfWJK1g5g86gBQGdnC%2FiHAK1IiM3WD0t0Bx0ivRUDO6Buh4RatSImAP4xnN086qaeWOMddcu4SH3bABhbcNoaziAi8IAyft4yvAgs%2FAofcbZENYsE3lzB07NgeYMnoHllvTmAVnSLWjEoa4VrVSiF2z2EUtglhbj%2B5t1wNduEoZBRC%2Bxaijmqw9Xn9vlsBAetC6c17LfO8LobSQKFDdF%2F%2F8oKsheOmQntBNPuF8DsdktgOv1hGcz%2BIbB0Slhe0seQMDmj8o6BkK2RAbHd76F9K0r9tgg4Pv715WQG4h6eIsAD%2BC3rYmLgvm47vX4DbQla264TW7fc%2FaocrjF8GPrkDFXjSD1fkfY9i1bt2cdRg2UllsM6seyWsBxDJAfBCwknnOFrYGQwjbtk6H7iUms0o95GsugR8AEBYDtFseuGfovPiYfdd0jlminF7kSDcwlnp1cjznMvBnMLbASKBn47qUZHDHZsQmeBFvuAoa44RcBDCfijJmCsj2oxxpPJp9nsouVMUmuP3fhvDvjTcZQ7fDaQcnoVgdTgAFjf0kePC3Jb1QPHFZaDI5cTitYpMKj%2BMtpEKwdR%2FvT3DZx%2FnWnnjKB%2BvLm5RkVA27adQceC%2F3YD79boqU58JUGbLcOry88R3Q6MG2EYfP0HfH4Awd2TR4D2ZM7wsjyKk9Rt33yeoQgkmv7YBVMXzSDrSIOs%2FtnPjbJSLXuR9ti7e3wo5kxFFMVmQdQ2JeAV4EtE6DNaE6c1Hph4IK7wFDqPk8R7vDF9YRCYyIW%2B%2BwE9Q8783uLI67Y88oojtxK6IXvYglVFINA1vKraqoCB9yJmYgzYaf%2B%2FBsfRIL8zmK%2Fg1Y4X5Jlg7nlabZw0tE62g7pLgWg1rv9Irt%2B2es%2F6%2Ft7RGLZ5BcMmVBTrxw1X4BeSeB5CAXHHfE254mg%2B7xDWHIbxyNtM9NFwkK%2F8n9Pr2WdXny8vrgao6VkNeIo7u%2BP%2B9rFjzg5f0EN0q9xEwpi8SAucKv7mL8KZTyKBfQNImkUkG9Ah1FONMi2TcThk9EI4lPaplpAl6b%2Fx9V%2BxoSbw%2FPPkML5n8saNHhSJPKdGRSgTeTNPsjC6vmUjn4SRDhQU%2BMg2BHodtdoi3D3iU0Y0z8Pxa0HWmjg457pUz8d5K3Knw4aW0%2Bfw7GNOyQKOl3jcgeHnhsrTRhOqaECrRk0o04DxsNHQfRPsMBcoKjpl3OjF5E98SRYQXyT0wNJc086TTQ2qBaKgO6wP1eUN9VbPTJVDkwDEu0SLbWbIn5oh7w73nSLvHSKYD66q58jPmQqFYpEm1a21oWvuMF%2Fl8NY2mk6no%2BnPWVuAk7C%2F34x4z92TrLEPkSehxsIMz7aUwAf7aLkjJrZ6ZNN8NvuMPe45NsJ8CdtGYtfQfOmEXKBPS8F6qOngkPhyV%2BLMK%2BuVelSz%2B4O68ZylHZrQOQTdG%2Fyhg6SSDvxJ1lRpMceuXFK0OMS2OAPQ%2BIRD%2B4Rt%2Br%2FKKVTS%2F4dxCpeYFFPShwT0dqTH8R9H11I8PGoHkLF1X0IaGPfgdnrvwLQz23mJadvHMu0P9z9i1kl4Pc%2Fx9WZuPq1JmN7G7uuYuKk5GPhwX2X3Cfb%2FaQw%2FZ%2FjGst5kfz7eQdNPUs13rHnG0I84DLKpgbN72ph2TcR8lW33jhjoe%2F8qVR7tpWy83RlqrhVADrzHCVERpxjVm2l7HcuHUnhUqfcQsY8PwrA7zpFMXH1RipewLLpga3RCH6i30Tx5jmM9beCL4%2BfXwy9S5xtSBnBWTI0zpqcntEykxnx4ReYTfeLrO1gncyEN24aXgFTRaL2NvKOqPPx2R6YgP2kGqkH4UuVm3dxRMuvmjnRC7T%2FpBMw%2FgC8KLl%2FhDrumwsXE0uzGem4GoktvozSF%2B8a0DmS9pXQSXJ%2BPNGNJ60pM4mjYB9%2BZ1iRLnpxjJfeVu4q%2BXdFVDA%2Bim7NIMi%2F6Ee2kIAYWiYr0zoQ86uo8sKwKtbTEDSmBqSG0aiY408nKZmZCoG2yhqw%2FLy7Ofy99s8eD6eDsWPpWkTSwZ2xyCIVjix0EFIA%2B7HbdPN8Erk1zjjjVQrIcYVOYUI9vC%2FjjpAr9mAMZ2hVTC0PrOFlCbGFSfSrQtPA3rYxeaODcC87e2R5wnh0PTp3UtdM4U05Ip%2BohpqQd5%2FLBkbeCEVmbcN4xqIIg2OJRBwbfNkxSvwEY3egrA1xNGORMNqULYoyVmResmJO3TozhnjbAVvSsVcimE8GHR%2FZiKWHEXgI2S9B3R9APDO2U6I0LsD0111qjIsKdUJMBaeiVTvgda1XOL4e5u4c1V87eHALz5fUtKydhXuJCDS48M2TMiAIdnp%2B1Rj1DGpw2ORrPrVffd8G6cwAsyfW3iuyaJCfOeGDV%2FrbRYyonQGYTzFXvlOFMMfXNdMtxQqTJos1N5i8EXxFVyMK0RieR8AUW6o%2F8kE2Z9Mq0K5iUnP%2Bbc%2FkEs8oI%2Ftp%2B1n%2FwcVdijXuTiHtm8x9i3EUmcdS9S8M0zWRCczZn3BBPFfqV5evGDFCVjhWTekHPyhEEKhuV7WQwMMkN%2FLbrLDN7iQvC1e%2BndS9ll35U62zXqVHtxpvA57QclCTlegCxPWxIw41IblTUJoG3ElJtVyY7A%2BCdTz79dfXLq8ZR4AY3U99s5KK8JCQCnQ6QIP5yPdlavpHy2rtho%2F6SJmGAkNFKLEVA%2BEVWOk55NY0o9FUj3OAKTucQAd2aoinjPBer7AhckJTsb8GC9%2BRkTjmOmpb6t3LKsVgk%2BcM7jRpvlisfLLpDe%2FiEseMLPx29ICW6kR4tbrkA8dOSRuUl22U1kZSDqt4Vf%2BVFoJdXgHy5uUz5ncnsa4N7PbjbdSFeXuqxzuGq04s8muP1zLY8YvMjm%2B80KvAzKuDUpQLlNR4pJ%2BRhkhkMUAhXVdzB7wd5OnDYgtx2erR3dkDICxuvvKbL7%2B1yAClBZOYG9Tx1wRWcNgpwFAWozfD7u6DP5oX3X7nVAP4M4IXtWfKAP7lc7PCoD0qof%2Fr7cpZ37yn8DdqHR7tu%2Fz5s4K7Dm%2Ben4l4RblketteGq7WN608g%2BHPSz698yQs%2Fy9erQ%2FTOuxR9bvHB64nebUSfF32WCViH8LvvUvj5xPxXlD45rsPXs7mJ%2FMUdUkKmLNeXP9vZ1wZKPj87j0k%2BVbEOTJwGkz0wSdIN60DEbRDZB5E4Y7AORLoNIjlE8rn725jUyQ6QXgPLXrBkGXo1oKLKnbxOrDhSnCVCGpTCrFd3TzWPpJXTyPzpnU0PL3L3XYl8l3Oplw9W3UboxemYGoT%2BUHboHpGSLjF%2Fj6znOvVOf5i9FFWdaDzBzdpJRnBdgBWzzvKAZexHHXg5DV4vxSvlaOvAy63Ipc9yDI%2Bav%2FD2MUrS0wvwZHxWHfhUdDqF7WSp8gRfYbYwyW0o%2Bz7xyu0akUcshrEOtHp1Mby%2FLBZZTn4deJQTNzC5v4351%2Fo54vzqEwIWHZ2%2BWz%2BXXyhR9HXp7pk1oBWIiJbDvc90CZIjJsMSUNLBQySJR%2F8lvj7R7awF3zzoDRpGmHd%2BRfT%2BCVMu7uM91T29L6cn5pKm13iFnXz33H0kd7c7Kn3aJt833Nxm664mX4BkS0bTBOFdO0OcduD4MwtW5bcEhdVFLF4MtdxwoSX13Wxiqn9aUsLZ960%2F3KsfOARl2t7sFKWZXkrg1vMNq7g0bgbaJ3Ptda6bzG7O%2BMpsZB3fLt5JSXdLREZ0QSLRKVmY%2FsN3zy69I%2FFuVpwuop2bXG2by1Ymg%2Bt3573hcbYfOKtYNWfbg8OsgITT7G9D67rc39h2L%2F4P" target="_blank" rel="noopener">Abrir o modelo no diagrams.net</a>
+    <a class="btn" href="pqc-architecture-archimate.drawio" target="_blank" rel="noopener">Arquivo .drawio</a>
+  </div>
+  <p>O modelo usa três camadas ArchiMate: <strong>Aplicação</strong> (componentes e interfaces de aplicação, azul), <strong>Tecnologia</strong> (nós, software de sistema, serviços e interfaces de tecnologia, verde) e <strong>Artefatos</strong> (o material da PKI). As relações são as do padrão: <em>fluxo</em> (tracejado com seta cheia) para o tráfego, <em>realização</em> (tracejado com triângulo vazio) de nó para serviço de tecnologia, <em>atribuição</em> (ponto e seta) de nó para componente, <em>servir</em> (seta aberta) de interface para componente e <em>acesso</em> (pontilhado) a artefatos. A cor da relação de fluxo repete a convenção deste documento: cobre para a camada dual, verde-azulado para a estrita.</p>
+  <figure>
+    <div class="canvas">
+    <svg viewBox="0 0 1180 700" role="img" aria-label="Visão ArchiMate 3.0: na camada de aplicação, o app móvel, o backend-client, o Keycloak, o KrakenD e o backend com seus subcomponentes; na camada de tecnologia, os nós do dispositivo, dos namespaces do Keycloak e do gateway e do container do backend, realizando o serviço de transporte dual e o serviço de transporte estrito; artefatos da PKI acessados pelos nós.">
+      <defs>
+        <marker id="ar-flow-pq" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="pq-fill"/></marker>
+        <marker id="ar-flow-compat" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="compat-fill"/></marker>
+        <marker id="ar-real" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--surface)" stroke="currentColor" stroke-width="1"/></marker>
+        <marker id="ar-assign" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+        <marker id="ar-dot" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6"><circle cx="5" cy="5" r="4" fill="currentColor"/></marker>
+        <marker id="ar-serve" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1,1 L9,5 L1,9" fill="none" stroke="currentColor" stroke-width="1.3"/></marker>
+        <!-- ArchiMate component icon -->
+        <g id="ic-comp"><rect x="0" y="0" width="12" height="16" class="arch-icon"/><rect x="-3" y="3" width="8" height="3" class="arch-icon"/><rect x="-3" y="9" width="8" height="3" class="arch-icon"/></g>
+        <!-- ArchiMate node icon -->
+        <g id="ic-node"><path d="M0,4 L4,0 L16,0 L16,10 L12,14 L0,14 Z M0,4 L12,4 L12,14 M12,4 L16,0" class="arch-icon"/></g>
+        <!-- ArchiMate interface icon -->
+        <g id="ic-iface"><circle cx="10" cy="6" r="5" class="arch-icon"/><line x1="0" y1="6" x2="5" y2="6" class="arch-icon"/></g>
+        <!-- ArchiMate artifact icon -->
+        <g id="ic-art"><path d="M0,0 L9,0 L13,4 L13,16 L0,16 Z M9,0 L9,4 L13,4" class="arch-icon"/></g>
+      </defs>
+
+      <!-- Application layer group -->
+      <rect x="20" y="20" width="1140" height="300" rx="4" fill="none" stroke="currentColor" stroke-dasharray="6 4"/>
+      <text x="32" y="40" font-size="12" font-weight="600">Camada de Aplicação</text>
+
+      <!-- Mobile component -->
+      <rect x="40" y="54" width="270" height="250" class="arch-app"/>
+      <use href="#ic-comp" x="286" y="62"/>
+      <text x="52" y="76" font-size="12" font-weight="600" class="arch-ink">Mobile (Flutter 3.41)</text>
+      <g font-size="10.5" class="arch-ink">
+        <rect x="52" y="90" width="246" height="42" class="arch-app"/><use href="#ic-comp" x="276" y="96"/><text x="60" y="106">PqcTlsSupport</text><text x="60" y="122">sonda ML-DSA → TransportMode</text>
+        <rect x="52" y="140" width="246" height="42" class="arch-app"/><use href="#ic-comp" x="276" y="146"/><text x="60" y="156">KeypairService</text><text x="60" y="172">ML-DSA-65 (seed-only) | ECDSA P-256</text>
+        <rect x="52" y="190" width="246" height="42" class="arch-app"/><use href="#ic-comp" x="276" y="196"/><text x="60" y="206">CsrService + PqcAsn1</text><text x="60" y="222">PKCS#10 DER, prova de posse</text>
+        <rect x="52" y="240" width="246" height="42" class="arch-app"/><use href="#ic-comp" x="276" y="246"/><text x="60" y="256">BootstrapClient · BankingClient</text><text x="60" y="272">SecurityContext com raízes do projeto</text>
+      </g>
+
+      <!-- backend-client -->
+      <rect x="335" y="54" width="200" height="60" class="arch-app"/>
+      <use href="#ic-comp" x="511" y="62"/>
+      <text x="345" y="76" font-size="11.5" font-weight="600" class="arch-ink">backend-client</text>
+      <text x="345" y="92" font-size="10.5" class="arch-ink">Spring Boot · BCJSSE</text>
+      <text x="345" y="106" font-size="10.5" class="arch-ink">client credentials + mTLS ML-DSA</text>
+
+      <!-- Keycloak -->
+      <rect x="335" y="150" width="200" height="60" class="arch-app"/>
+      <use href="#ic-comp" x="511" y="158"/>
+      <text x="345" y="172" font-size="11.5" font-weight="600" class="arch-ink">Keycloak 26</text>
+      <text x="345" y="188" font-size="10.5" class="arch-ink">emissor OAuth2 · JWT RS256</text>
+      <text x="345" y="202" font-size="10.5" class="arch-ink">HTTP em 127.0.0.1 (nunca TLS)</text>
+
+      <!-- KrakenD -->
+      <rect x="560" y="54" width="250" height="156" class="arch-app"/>
+      <use href="#ic-comp" x="786" y="62"/>
+      <text x="572" y="76" font-size="11.5" font-weight="600" class="arch-ink">KrakenD 2.13 (loopback)</text>
+      <g font-size="10.5" class="arch-ink">
+        <rect x="572" y="90" width="226" height="50" class="arch-app"/><use href="#ic-iface" x="776" y="98"/><text x="580" y="106">Interface bootstrap · 127.0.0.1:18080</text><text x="580" y="122">/auth/otk · /auth/csr · JWT via JWKS</text>
+        <rect x="572" y="150" width="226" height="50" class="arch-app"/><use href="#ic-iface" x="776" y="158"/><text x="580" y="166">Interface banking · 127.0.0.1:18443</text><text x="580" y="182">/pix/transfers · /statements · /profile</text>
+      </g>
+
+      <!-- Backend -->
+      <rect x="850" y="54" width="290" height="250" class="arch-app"/>
+      <use href="#ic-comp" x="1116" y="62"/>
+      <text x="862" y="76" font-size="11.5" font-weight="600" class="arch-ink">Backend (Spring Boot Kotlin)</text>
+      <g font-size="10.5" class="arch-ink">
+        <rect x="862" y="90" width="266" height="42" class="arch-app"/><use href="#ic-comp" x="1106" y="96"/><text x="870" y="106">PostQuantumTls (BCJSSE)</text><text x="870" y="122">mTLS ML-DSA-65 · X25519MLKEM768</text>
+        <rect x="862" y="140" width="266" height="42" class="arch-app"/><use href="#ic-comp" x="1106" y="146"/><text x="870" y="156">GatewayClientCertificateFilter</text><text x="870" y="172">exige o certificado do gateway</text>
+        <rect x="862" y="190" width="266" height="42" class="arch-app"/><use href="#ic-comp" x="1106" y="196"/><text x="870" y="206">OtkController · CsrController · CsrValidator</text><text x="870" y="222">aceita ML-DSA-65/87 e ECDSA P-256</text>
+        <rect x="862" y="240" width="266" height="42" class="arch-app"/><use href="#ic-comp" x="1106" y="246"/><text x="870" y="256">ScriptPkiAdapter → sign-csr.sh</text><text x="870" y="272">devolve a cadeia escolhida (.issuer)</text>
+      </g>
+
+      <!-- Application flows -->
+      <path d="M310,120 L335,120 L335,150" fill="none" class="compat" stroke-width="1.6" stroke-dasharray="7 5" marker-end="url(#ar-flow-compat)"/>
+      <text x="314" y="140" font-size="10" class="compat-text">token</text>
+      <path d="M310,160 L560,124" fill="none" class="compat" stroke-width="1.6" stroke-dasharray="7 5" marker-end="url(#ar-flow-compat)"/>
+      <text x="425" y="134" font-size="10" class="compat-text">OTK + CSR · TLS dual</text>
+      <path d="M310,260 C420,300 500,240 572,190" fill="none" class="compat" stroke-width="1.6" stroke-dasharray="7 5" marker-end="url(#ar-flow-compat)"/>
+      <text x="400" y="268" font-size="10" class="compat-text">mTLS dual + JWT</text>
+      <path d="M535,84 L560,100" fill="none" class="pq" stroke-width="1.6" stroke-dasharray="7 5" marker-end="url(#ar-flow-pq)"/>
+      <path d="M810,115 L850,115" fill="none" class="pq" stroke-width="1.6" stroke-dasharray="7 5" marker-end="url(#ar-flow-pq)"/>
+      <text x="812" y="109" font-size="9.5" class="pq-text">estrito</text>
+      <path d="M810,175 L850,175" fill="none" class="pq" stroke-width="1.6" stroke-dasharray="7 5" marker-end="url(#ar-flow-pq)"/>
+      <text x="812" y="169" font-size="9.5" class="pq-text">estrito</text>
+      <path d="M535,180 L560,180" fill="none" class="pq" stroke-width="1.6" stroke-dasharray="7 5" marker-start="url(#ar-flow-pq)"/>
+      <text x="536" y="194" font-size="9.5" class="pq-text">JWKS</text>
+
+      <!-- Technology layer group -->
+      <rect x="20" y="340" width="1140" height="340" rx="4" fill="none" stroke="currentColor" stroke-dasharray="6 4"/>
+      <text x="32" y="360" font-size="12" font-weight="600">Camada de Tecnologia</text>
+
+      <!-- Nodes -->
+      <g font-size="10.5">
+        <rect x="40" y="376" width="270" height="86" class="arch-tech"/><use href="#ic-node" x="284" y="382"/>
+        <text x="52" y="396" font-weight="600" class="arch-ink">Nó: dispositivo móvel</text>
+        <text x="52" y="414" class="arch-ink">dart:io / BoringSSL (Dart 3.11)</text>
+        <text x="52" y="430" class="arch-ink">sem ML-DSA em signature_algorithms</text>
+        <text x="52" y="446" class="arch-ink">grupos: X25519, P-256, P-384</text>
+
+        <rect x="340" y="376" width="180" height="86" class="arch-tech"/><use href="#ic-node" x="494" y="382"/>
+        <text x="350" y="396" font-weight="600" class="arch-ink">Nó: namespace keycloak</text>
+        <text x="350" y="414" class="arch-ink">keycloak-tls (HAProxy 3.2</text>
+        <text x="350" y="430" class="arch-ink">+ OpenSSL 3.5)</text>
+        <text x="350" y="446" class="arch-ink">interface :8443 · dual</text>
+
+        <rect x="560" y="376" width="250" height="86" class="arch-tech"/><use href="#ic-node" x="784" y="382"/>
+        <text x="572" y="396" font-weight="600" class="arch-ink">Nó: namespaces gateway-*</text>
+        <text x="572" y="414" class="arch-ink">gateway-*-tls (HAProxy 3.2 + OpenSSL 3.5)</text>
+        <text x="572" y="430" class="arch-ink">interfaces :8080 e :8443 · dual</text>
+        <text x="572" y="446" class="arch-ink">egressos 18081 / 18082 · estritos</text>
+
+        <rect x="850" y="376" width="290" height="86" class="arch-tech"/><use href="#ic-node" x="1114" y="382"/>
+        <text x="862" y="396" font-weight="600" class="arch-ink">Nó: container backend</text>
+        <text x="862" y="414" class="arch-ink">JDK 17 + BouncyCastle BCJSSE 1.86</text>
+        <text x="862" y="430" class="arch-ink">OpenSSL 3.5 para sign-csr.sh</text>
+        <text x="862" y="446" class="arch-ink">interface :8080 · mTLS estrito</text>
+      </g>
+
+      <!-- Assignments node -> component (dot + arrow, going up) -->
+      <line x1="175" y1="376" x2="175" y2="304" stroke="currentColor" stroke-width="1.3" marker-start="url(#ar-dot)" marker-end="url(#ar-assign)"/>
+      <line x1="430" y1="376" x2="430" y2="210" stroke="currentColor" stroke-width="1.3" marker-start="url(#ar-dot)" marker-end="url(#ar-assign)"/>
+      <line x1="685" y1="376" x2="685" y2="210" stroke="currentColor" stroke-width="1.3" marker-start="url(#ar-dot)" marker-end="url(#ar-assign)"/>
+      <line x1="995" y1="376" x2="995" y2="304" stroke="currentColor" stroke-width="1.3" marker-start="url(#ar-dot)" marker-end="url(#ar-assign)"/>
+
+      <!-- Technology services (rounded) -->
+      <rect x="90" y="510" width="470" height="58" rx="29" class="arch-tech" style="stroke: var(--compat); stroke-width: 2"/>
+      <text x="325" y="533" text-anchor="middle" font-size="11.5" font-weight="600" class="arch-ink">Serviço de tecnologia: transporte dual (borda do app)</text>
+      <text x="325" y="551" text-anchor="middle" font-size="10.5" class="arch-ink">TLS 1.3 · ML-DSA-65 ou ECDSA P-256 · X25519MLKEM768 preferido, X25519 aceito</text>
+
+      <rect x="600" y="510" width="480" height="58" rx="29" class="arch-tech" style="stroke: var(--pq); stroke-width: 2"/>
+      <text x="840" y="533" text-anchor="middle" font-size="11.5" font-weight="600" class="arch-ink">Serviço de tecnologia: transporte estrito (serviço a serviço)</text>
+      <text x="840" y="551" text-anchor="middle" font-size="10.5" class="arch-ink">TLS 1.3 · ML-DSA-65 sob ML-DSA-87 · X25519MLKEM768 somente</text>
+
+      <!-- Realizations node -> service (dashed, hollow triangle) -->
+      <line x1="430" y1="462" x2="330" y2="510" stroke="currentColor" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#ar-real)"/>
+      <line x1="640" y1="462" x2="420" y2="510" stroke="currentColor" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#ar-real)"/>
+      <line x1="740" y1="462" x2="780" y2="510" stroke="currentColor" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#ar-real)"/>
+      <line x1="995" y1="462" x2="900" y2="510" stroke="currentColor" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#ar-real)"/>
+      <!-- Serving service -> node (open arrow) -->
+      <path d="M200,510 L175,462" fill="none" stroke="currentColor" stroke-width="1.3" marker-end="url(#ar-serve)"/>
+      <text x="60" y="490" font-size="10" class="muted-text">serve o dispositivo</text>
+
+      <!-- Artifacts -->
+      <g font-size="10.5">
+        <rect x="40" y="596" width="330" height="64" class="arch-art"/><use href="#ic-art" x="350" y="602"/>
+        <text x="50" y="616" font-weight="600" class="arch-ink">Artefato: PKI pós-quântica</text>
+        <text x="50" y="632" class="arch-ink">root-ca.crt · issuing-ca.crt (ML-DSA-87)</text>
+        <text x="50" y="648" class="arch-ink">*.p12 / *.pem ML-DSA-65 · ca-chain.crt · asset do app</text>
+
+        <rect x="400" y="596" width="330" height="64" class="arch-art"/><use href="#ic-art" x="710" y="602"/>
+        <text x="410" y="616" font-weight="600" class="arch-ink">Artefato: PKI de compatibilidade</text>
+        <text x="410" y="632" class="arch-ink">root-ca-compat.crt · issuing-ca-compat.crt (P-384)</text>
+        <text x="410" y="648" class="arch-ink">gateway-server-compat · keycloak-server-compat</text>
+
+        <rect x="760" y="596" width="380" height="64" class="arch-art"/><use href="#ic-art" x="1120" y="602"/>
+        <text x="770" y="616" font-weight="600" class="arch-ink">Artefato: bundles de confiança</text>
+        <text x="770" y="632" class="arch-ink">ca-chain-all.crt (banking) · trust-anchors.crt (app, testes)</text>
+        <text x="770" y="648" class="arch-ink">fixtures negativas: RSA, ML-DSA-44, untrusted-compat</text>
+      </g>
+      <!-- Access (dotted) -->
+      <line x1="430" y1="596" x2="500" y2="568" stroke="currentColor" stroke-width="1.2" stroke-dasharray="1 4" stroke-linecap="round"/>
+      <line x1="300" y1="596" x2="300" y2="568" stroke="currentColor" stroke-width="1.2" stroke-dasharray="1 4" stroke-linecap="round"/>
+      <line x1="900" y1="596" x2="900" y2="568" stroke="currentColor" stroke-width="1.2" stroke-dasharray="1 4" stroke-linecap="round"/>
+      <line x1="650" y1="596" x2="700" y2="568" stroke="currentColor" stroke-width="1.2" stroke-dasharray="1 4" stroke-linecap="round"/>
+    </svg>
+    </div>
+    <ul class="legend">
+      <li><span class="sw compat"></span>Fluxo pela camada dual</li>
+      <li><span class="sw pq"></span>Fluxo pela camada estrita</li>
+      <li><span style="display:inline-block;width:14px;height:14px;background:var(--arch-app);border:1px solid #1B5E5A"></span>Aplicação</li>
+      <li><span style="display:inline-block;width:14px;height:14px;background:var(--arch-tech);border:1px solid #2E6B2E"></span>Tecnologia</li>
+      <li><span style="display:inline-block;width:14px;height:14px;background:#fff;border:1px solid var(--muted)"></span>Artefato</li>
+    </ul>
+    <figcaption>Figura 5. Reprodução da visão ArchiMate 3.0 do arquivo draw.io. Os nós de tecnologia realizam dois serviços de transporte; o dispositivo é servido apenas pelo dual, enquanto o container do backend realiza apenas o estrito. Os artefatos da PKI são acessados pelos nós, nunca pelos componentes de aplicação.</figcaption>
+  </figure>
+  <p>Leitura do modelo: as relações de <strong>atribuição</strong> ligam cada nó ao componente que ele hospeda (o dispositivo ao app, o namespace do gateway ao KrakenD, o container ao backend). As de <strong>realização</strong> mostram que o serviço dual é realizado apenas pelos nós que têm um terminador HAProxy com identidade ECDSA, e que o serviço estrito é realizado pelos egressos desses mesmos nós e pelo backend. Esse é o argumento arquitetural central: a compatibilidade é uma propriedade dos nós de borda, e não dos componentes de aplicação, de modo que nenhuma regra de negócio conhece a diferença.</p>
+</section>
+
+<section id="evidencias">
+  <h2><span class="num">13</span>Evidências e testes</h2>
+  <p>A política é aplicada por gates automáticos em cada repositório e por testes de runtime que abrem handshakes reais. Um comando por camada:</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Camada</th><th>Gate</th><th>O que prova</th></tr></thead>
+      <tbody>
+        <tr><td>pki</td><td><code>scripts/ci-validate.sh</code></td><td>Duas cadeias, sem cross-signing; ML-DSA-65 para todo serviço; nenhuma identidade compat em serviço; ECDSA P-256 só nos dois listeners do app; PKCS#12; fixtures negativas com os algoritmos proibidos.</td></tr>
+        <tr><td>api-gateway</td><td><code>scripts/ci-validate.sh</code></td><td><code>krakend check</code>, <code>haproxy -c</code> com material gerado das duas cadeias, <code>verify-pqc-gateway.sh</code> (defaults de egress estritos, binds duais, nenhum RSA).</td></tr>
+        <tr><td>infrastructure</td><td><code>scripts/verify-local-e2e-config.sh</code></td><td>Topologia dos terminadores, bindings em loopback, terminador do emissor dual, as duas classes de dispositivo nos serviços de smoke.</td></tr>
+        <tr><td>backend / backend-client</td><td><code>gradle check</code> (Kover 100 % de linhas)</td><td>Handshakes mútuos ML-DSA reais em loopback sobre X25519MLKEM768; identidade RSA e cliente anônimo recusados no handshake; fixtures de CSR do Dart das duas famílias.</td></tr>
+        <tr><td>mobile-app</td><td><code>flutter test --coverage</code> (100 % de linhas) e <code>scripts/verify-pqc-csr-interop.sh</code></td><td>Estrutura das duas famílias de chave, codificações PKCS#8, prova de posse, seleção de modo e de trust anchors, tela de gate nos dois modos; CSRs e chaves verificados com OpenSSL 3.5.</td></tr>
+        <tr><td>runtime (e2e)</td><td><code>smoke-tests</code>, <code>negative-mtls-tests</code>, <code>pqc-handshake-tests</code></td><td>Enrollment e chamadas com dispositivo ML-DSA e ECDSA; RSA, ML-DSA-44 e compat não confiável recusados no banking; grupos clássicos e identidades compat recusados no backend; grupo negociado e assinatura do par medidos por classe de cliente em cada hop.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>O teste de handshake lê a saída do <code>openssl s_client</code> 3.5 para classificar cada conexão: <code>Negotiated TLS1.3 group: X25519MLKEM768</code> identifica o híbrido e <code>Peer Temp Key: X25519, 253 bits</code> identifica a troca clássica aceita na borda; a assinatura do par vem de <code>Peer signature type</code>. São 19 casos, cobrindo cada listener com cada classe de cliente, mais as recusas.</p>
+<pre><code>$ docker compose --env-file .env --profile smoke run --rm pqc-handshake-tests
+[gateway-banking :8443] client=mldsa        group=X25519MLKEM768 peer-sig=mldsa65               ok
+[gateway-banking :8443] client=ecdsa-p256   group=X25519MLKEM768 peer-sig=ecdsa_secp256r1_sha256 ok
+[gateway-banking :8443] client=ecdsa-p256 --curves X25519   group=X25519 peer-sig=ecdsa_secp256r1_sha256 ok
+[backend :8080]         client=mldsa        group=X25519MLKEM768 peer-sig=mldsa65               ok
+[backend :8080]         client=ecdsa-p256   refused (handshake_failure)                          ok
+[backend :8080]         client=mldsa --curves X25519          refused (handshake_failure)         ok
+[any listener]          client=rsa          refused                                              ok
+pqc-handshake-ok</code></pre>
+</section>
+
+<section id="limites">
+  <h2><span class="num">14</span>Limitações e roadmap</h2>
+  <ul>
+    <li><strong>Tokens continuam RS256.</strong> Keycloak e KrakenD não têm JWS com ML-DSA. O risco é limitado: os JWTs só trafegam dentro das sessões TLS pós-quânticas e têm vida curta. Quando os dois suportarem ML-DSA em JOSE, a troca é de configuração.</li>
+    <li><strong>O app está em modo compatibilidade hoje.</strong> No Dart 3.11 a sonda falha ao carregar a raiz ML-DSA e o app usa ECDSA P-256 + X25519. No Dart 3.13 a raiz carrega, mas o handshake ainda não oferece ML-DSA nem o híbrido, então o resultado é o mesmo na prática. A camada existe por causa dos clientes, não dos servidores.</li>
+    <li><strong>Caminho para a borda totalmente pós-quântica.</strong> Quando um Flutter oferecer ML-DSA em <code>signature_algorithms</code> e X25519MLKEM768 nos grupos padrão (ou expuser isso no <code>SecurityContext</code>), a sonda passa, o dispositivo enrola uma identidade ML-DSA-65, os listeners duais lhe servem a cadeia ML-DSA e nenhum servidor precisa mudar. A cadeia compat pode então ser retirada dos binds do gateway e ficar só no emissor, para navegadores.</li>
+    <li><strong>Sem SNI, o padrão é compat.</strong> Um cliente ML-DSA que conecte por IP puro receberá a identidade ECDSA e falhará; todos os serviços conectam por hostname, e o CI cobre isso.</li>
+    <li><strong>Revogação</strong> no v1 é por reemissão e rotação de bundles. Um serviço de OCSP/CRL ou a adoção do OpenXPKI é decisão da spec <code>onboarding-pki</code> para depois do v1.</li>
+    <li><strong>Passthrough obrigatório na nuvem.</strong> Qualquer terminação gerenciada (Cloud Run HTTPS, ALB com listener HTTPS) anula a garantia; a infraestrutura documenta o TCP passthrough por nuvem.</li>
+  </ul>
+</section>
+
+<section id="referencias">
+  <h2><span class="num">15</span>Referências</h2>
+  <dl class="refs">
+    <dt>FIPS 203, Module-Lattice-Based Key-Encapsulation Mechanism Standard (NIST, 2024)</dt><dd>ML-KEM-512/768/1024; o projeto usa ML-KEM-768 dentro do híbrido.</dd>
+    <dt>FIPS 204, Module-Lattice-Based Digital Signature Standard (NIST, 2024)</dt><dd>ML-DSA-44/65/87; o projeto usa 65 para folhas e 87 para CAs.</dd>
+    <dt>draft-ietf-tls-ecdhe-mlkem, Post-quantum hybrid ECDHE-MLKEM Key Agreement for TLSv1.3</dt><dd>Define o grupo X25519MLKEM768 (0x11EC) e a concatenação dos segredos.</dd>
+    <dt>RFC 9881, Internet X.509 PKI: Algorithm Identifiers for ML-DSA</dt><dd>OIDs de ML-DSA e o formato seed-only de chave privada usado pelo app.</dd>
+    <dt>RFC 8446, TLS 1.3</dt><dd>Estrutura do handshake, <code>signature_algorithms</code>, <code>supported_groups</code>, HelloRetryRequest.</dd>
+    <dt>RFC 5915 e RFC 6979</dt><dd>Codificação da chave EC e assinatura ECDSA determinística usadas no modo compatibilidade.</dd>
+    <dt>OpenSSL 3.5 (LTS), HAProxy 3.2, BouncyCastle 1.86</dt><dd>Implementações que fornecem ML-KEM e ML-DSA nos terminadores, nos testes e nos serviços JVM.</dd>
+    <dt>Documentos do projeto</dt><dd><code>docs/pqc-ml-dsa-transport.md</code> (política e gates), <code>docs/pqc-architecture-archimate.drawio</code> (modelo ArchiMate), <code>openspec/specs/secure-gateway-communication</code> e <code>openspec/specs/onboarding-pki</code> (requisitos), <code>AGENTS.md</code> (restrições).</dd>
+  </dl>
+</section>
+
+</main>
+</div>
+
+<footer>
+  Quantum Bank · documento de arquitetura e criptografia de transporte · gerado a partir do estado do repositório em 18 de setembro de 2026. Os nomes de arquivos, classes e portas citados são os do código; a saída de teste mostrada é ilustrativa do formato do script de evidência.
+</footer>
+</div>
