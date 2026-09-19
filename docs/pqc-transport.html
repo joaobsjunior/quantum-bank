@@ -247,6 +247,7 @@
     <li><a href="#camadas">As duas camadas de transporte</a></li>
     <li><a href="#capacidades">Matriz de capacidades dos clientes</a></li>
     <li><a href="#handshake">Decisão do handshake</a></li>
+    <li><a href="#envelope">Envelope de aplicação e assinaturas</a></li>
     <li><a href="#pki">PKI: duas cadeias que não se cruzam</a></li>
     <li><a href="#implementacao">Implementação por repositório</a></li>
     <li><a href="#cloud">Nuvem: AWS, GCP e Azure</a></li>
@@ -646,7 +647,7 @@
       </tbody>
     </table>
   </div>
-  <p>Conclusão da matriz: <strong>ML-KEM-768 no híbrido X25519MLKEM768</strong> é o único grupo pós-quântico que todo stack acima implementa, então é usado para a troca de chaves em todo lugar. <strong>ML-DSA-65</strong> é usado para autenticação onde o par verifica; <strong>ECDSA P-256 sob P-384</strong> cobre o resto. Quando o Dart passar a oferecer ML-DSA e o híbrido, o app migra sozinho (ver <a href="#limites">seção 14</a>).</p>
+  <p>Conclusão da matriz: <strong>ML-KEM-768 no híbrido X25519MLKEM768</strong> é o único grupo pós-quântico que todo stack acima implementa, então é usado para a troca de chaves em todo lugar. <strong>ML-DSA-65</strong> é usado para autenticação onde o par verifica; <strong>ECDSA P-256 sob P-384</strong> cobre o resto. Quando o Dart passar a oferecer ML-DSA e o híbrido, o app migra sozinho (ver <a href="#limites">seção 15</a>).</p>
 </section>
 
 <section id="handshake">
@@ -737,8 +738,87 @@
   <p>Nos hops estritos não há decisão: os defaults globais do HAProxy (<code>ssl-default-bind-sigalgs mldsa65:mldsa87</code>, <code>ssl-default-server-curves X25519MLKEM768</code>) e as propriedades <code>jdk.tls.*</code> do BCJSSE só admitem uma resposta. Qualquer outra oferta termina em <code>handshake_failure</code>.</p>
 </section>
 
+<section id="envelope">
+  <h2><span class="num">09</span>Envelope de aplicação e assinatura por transação</h2>
+  <p>As duas camadas de transporte descritas acima resolvem tudo, exceto um ponto: na borda do app o TLS pode negociar troca de chaves clássica, porque nenhuma versão do Dart oferece X25519MLKEM768, e um balanceador gerenciado na nuvem pode terminar o TLS antes do terminador do projeto. Para um sistema bancário isso deixa aberto justamente o risco que existe hoje, o "colete agora, decifre depois".</p>
+  <p>A solução implementada é uma <strong>segunda camada pós-quântica, independente do transporte</strong>, entre o app e o backend. Ela não depende da pilha TLS do dispositivo, porque é feita em Dart e Kotlin, e o gateway a repassa sem conseguir abrir.</p>
+  <figure>
+    <div class="canvas">
+    <svg viewBox="0 0 1080 300" role="img" aria-label="O envelope de aplicação é criado no app, atravessa o gateway como texto cifrado opaco e só é aberto no backend; a resposta volta selada com a chave derivada do mesmo segredo.">
+      <defs>
+        <marker id="ah5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="pq-fill"/></marker>
+        <marker id="ah5-c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="compat-fill"/></marker>
+      </defs>
+      <rect x="20" y="70" width="230" height="130" rx="8" class="box"/>
+      <text x="135" y="96" text-anchor="middle" font-size="13" font-weight="600">App</text>
+      <text x="135" y="118" text-anchor="middle" font-size="11">sela o corpo com ML-KEM-768 + X25519</text>
+      <text x="135" y="136" text-anchor="middle" font-size="11">assina o Pix com ML-DSA-65</text>
+      <text x="135" y="158" text-anchor="middle" font-size="11" class="muted-text">verifica o conjunto de chaves</text>
+      <text x="135" y="176" text-anchor="middle" font-size="11" class="muted-text">contra a raiz ML-DSA-87, em Dart</text>
+
+      <rect x="395" y="70" width="260" height="130" rx="8" class="box compat" style="stroke-width:1.5"/>
+      <text x="525" y="96" text-anchor="middle" font-size="12.5" font-weight="600">Gateway (KrakenD + terminador)</text>
+      <text x="525" y="118" text-anchor="middle" font-size="11">valida JWT e certificado do cliente</text>
+      <text x="525" y="140" text-anchor="middle" font-size="11" class="compat-text">vê apenas texto cifrado</text>
+      <text x="525" y="162" text-anchor="middle" font-size="11" class="muted-text">encaminha X-Quantum-Envelope</text>
+
+      <rect x="800" y="70" width="260" height="130" rx="8" class="box pq" style="stroke-width:1.5"/>
+      <text x="930" y="96" text-anchor="middle" font-size="13" font-weight="600">Backend</text>
+      <text x="930" y="118" text-anchor="middle" font-size="11">abre o envelope (EnvelopeFilter)</text>
+      <text x="930" y="140" text-anchor="middle" font-size="11">verifica a assinatura do Pix</text>
+      <text x="930" y="162" text-anchor="middle" font-size="11" class="muted-text">publica e assina o conjunto de chaves</text>
+
+      <line x1="250" y1="112" x2="395" y2="112" class="pq" stroke-width="2" marker-end="url(#ah5)"/>
+      <text x="322" y="104" text-anchor="middle" font-size="11" class="pq-text">envelope</text>
+      <line x1="655" y1="112" x2="800" y2="112" class="pq" stroke-width="2" marker-end="url(#ah5)"/>
+      <text x="727" y="104" text-anchor="middle" font-size="11" class="pq-text">envelope</text>
+      <line x1="800" y1="170" x2="655" y2="170" class="pq" stroke-width="2" marker-end="url(#ah5)"/>
+      <line x1="395" y1="170" x2="250" y2="170" class="pq" stroke-width="2" marker-end="url(#ah5)"/>
+      <text x="525" y="222" text-anchor="middle" font-size="11" class="pq-text">resposta selada com a chave derivada do mesmo segredo</text>
+
+      <line x1="135" y1="200" x2="135" y2="240" class="compat" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ah5-c)"/>
+      <line x1="930" y1="200" x2="930" y2="240" class="compat" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ah5-c)"/>
+      <rect x="20" y="240" width="1040" height="44" rx="8" class="box compat" style="stroke-width:1.5"/>
+      <text x="540" y="267" text-anchor="middle" font-size="11.5" class="compat-text">TLS por baixo: camada dual na borda do app, camada estrita entre serviços. Se o TLS for clássico, o envelope continua pós-quântico.</text>
+    </svg>
+    </div>
+    <figcaption>Figura 6. O envelope é criado e aberto nas pontas. O gateway continua aplicando JWT e mTLS, mas o conteúdo bancário é opaco para ele e para qualquer balanceador que termine TLS no caminho.</figcaption>
+  </figure>
+  <h3>Como o envelope é construído</h3>
+  <p>A construção espelha o próprio grupo TLS X25519MLKEM768, para que transporte e aplicação descansem sobre o mesmo argumento de segurança: o segredo é a concatenação de uma encapsulação ML-KEM-768 com um acordo X25519 efêmero.</p>
+<pre><code>ss     = ML-KEM-768.Encaps(ek) || X25519(sk_ef, pk_backend)
+prk    = HKDF-Extract(SHA-256, salt = "quantum-bank-envelope-v1", ikm = ss)
+k_req  = HKDF-Expand(prk, "request\0"  || kid || "\0" || aad, 32)
+k_resp = HKDF-Expand(prk, "response\0" || kid || "\0" || aad, 32)
+corpo  = AES-256-GCM(k, nonce, texto_claro, aad)     aad = MÉTODO + " " + CAMINHO</code></pre>
+  <p>Requisições com corpo levam o envelope no corpo, com o tipo de mídia <code>application/vnd.quantum-bank.envelope+json</code>. Requisições sem corpo (GET) levam a encapsulação no cabeçalho <code>X-Quantum-Envelope</code>, que o KrakenD encaminha. A resposta sempre volta selada com <code>k_resp</code>, de modo que só quem abriu a requisição consegue produzi-la.</p>
+  <h3>Confiança no conjunto de chaves</h3>
+  <p>As chaves públicas do backend chegam ao app na resposta do CSR, assinadas com a identidade ML-DSA-65 emitida pela PKI (contexto FIPS 204 <code>quantum-bank-envelope-keys-v1</code>). O app verifica a assinatura e a cadeia até a raiz ML-DSA-87 embutida no binário, <strong>em Dart puro</strong> (<code>mldsa_x509.dart</code>): assinaturas, vínculo emissor/sujeito, validade e a flag de CA. Nenhuma dessas decisões passa pelo <code>dart:io</code>, que é exatamente o componente que não sabe verificar ML-DSA. Se qualquer verificação falhar, o dispositivo fica em estado <code>untrusted</code> e não alcança a superfície bancária.</p>
+  <h3>Assinatura por transação</h3>
+  <p>Além do envelope, cada ordem Pix leva uma assinatura ML-DSA-65 feita com uma chave de assinatura do dispositivo, separada da identidade TLS e registrada no enrollment com prova de posse sobre o CSR. A mensagem canônica cobre sujeito, dispositivo, valor, chave do destinatário, descrição, cenário, nonce e instante de emissão, com contexto <code>quantum-bank-pix-v1</code>.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Verificação no backend</th><th>Rejeição</th></tr></thead>
+      <tbody>
+        <tr><td>Algoritmo diferente de ML-DSA-65</td><td><code>transaction_signature_invalid</code></td></tr>
+        <tr><td>Chave do dispositivo não registrada para o sujeito</td><td><code>transaction_signature_invalid</code></td></tr>
+        <tr><td><code>issuedAt</code> fora da janela de ±2 minutos</td><td><code>transaction_signature_invalid</code></td></tr>
+        <tr><td>Assinatura não confere com a mensagem canônica</td><td><code>transaction_signature_invalid</code></td></tr>
+        <tr><td>Nonce já usado (replay)</td><td><code>transaction_signature_replayed</code> (409)</td></tr>
+        <tr><td>Cliente de borda sem assinatura</td><td><code>transaction_signature_required</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>A assinatura verificada é gravada junto da tentativa Pix, o que dá não repúdio pós-quântico por transação, independente do token RS256 e do transporte.</p>
+  <h3>Quem é obrigado a usar</h3>
+  <p>A política é por cliente OAuth2 (<code>quantum-bank.envelope.required-for-clients</code>, padrão <code>quantum-bank-mobile</code>). O app, único servido pela camada dual, precisa envelopar e assinar. Os serviços da camada estrita (<code>backend-client</code>, cliente de testes) continuam em JSON simples sobre o mTLS pós-quântico que já têm, sem duplicar a proteção.</p>
+  <div class="callout">
+    <p><strong>Evidência cruzada.</strong> O app gera um fixture com o mesmo código de produção (<code>tool/emit_envelope_fixture.dart</code>); o backend o abre com BouncyCastle nos testes, e <code>scripts/verify-pqc-envelope-interop.sh</code> confere os segredos ML-KEM-768 e X25519 contra o OpenSSL 3.5. Três implementações independentes chegam aos mesmos bytes.</p>
+  </div>
+</section>
+
 <section id="pki">
-  <h2><span class="num">09</span>PKI: duas cadeias que não se cruzam</h2>
+  <h2><span class="num">10</span>PKI: duas cadeias que não se cruzam</h2>
   <p>A PKI local mantém duas hierarquias independentes, cada uma com raiz e CA emissora. Elas nunca se assinam mutuamente: um certificado ECDSA nunca é ancorado numa raiz ML-DSA, e vice-versa. Assim, uma raiz ML-DSA-87 nunca herda a exposição quântica de uma assinatura ECDSA, e a cadeia de compatibilidade pode ser aposentada sem tocar na outra.</p>
   <figure>
     <div class="canvas">
@@ -827,7 +907,7 @@
 </section>
 
 <section id="implementacao">
-  <h2><span class="num">10</span>Implementação por repositório</h2>
+  <h2><span class="num">11</span>Implementação por repositório</h2>
 
   <h3>api-gateway: os binds do HAProxy</h3>
   <p>Os terminadores usam a mesma imagem (<code>Dockerfile.tls</code>, HAProxy 3.2 sobre OpenSSL 3.5). Os defaults globais são estritos e valem para todos os egressos; só os binds voltados ao app os relaxam explicitamente.</p>
@@ -915,7 +995,7 @@ List&lt;Uint8List&gt; trustAnchorsFor(TransportMode mode) =&gt; switch (mode) {
 </section>
 
 <section id="cloud">
-  <h2><span class="num">11</span>Nuvem: AWS, GCP e Azure</h2>
+  <h2><span class="num">12</span>Nuvem: AWS, GCP e Azure</h2>
   <p>Os caminhos Terraform reproduzem a topologia do Compose: o container do gateway e o terminador como sidecar compartilhando a rede da task. O módulo <code>pqc_transport</code> carrega os valores estritos e os <code>compat_*</code> (nomes dos certificados de compatibilidade, listas de curvas e sigalgs) e cada nuvem tem seu próprio caminho, sem módulo genérico que esconda as diferenças.</p>
   <div class="table-wrap">
     <table>
@@ -933,7 +1013,7 @@ List&lt;Uint8List&gt; trustAnchorsFor(TransportMode mode) =&gt; switch (mode) {
 </section>
 
 <section id="archimate">
-  <h2><span class="num">12</span>Visão ArchiMate 3.0 (draw.io)</h2>
+  <h2><span class="num">13</span>Visão ArchiMate 3.0 (draw.io)</h2>
   <p>A arquitetura de componentes foi modelada em ArchiMate 3.0 com a biblioteca nativa do draw.io (<code>mxgraph.archimate3</code>). O arquivo fonte é <code>docs/pqc-architecture-archimate.drawio</code> neste repositório, e a Figura 5 abaixo é a exportação SVG desse arquivo feita pelo renderizador do draw.io (também gravada em <code>docs/pqc-architecture-archimate.svg</code>). O botão abre o mesmo modelo no diagrams.net, editável, sem depender de nenhum servidor além do próprio editor.</p>
   <div class="actions">
     <a class="btn primary" href="https://app.diagrams.net/#R7V1tc9q6Ev41zCR3BsYvvOUjkNCepjnNLZlz7rczwhagE2G5kslLf%2F3dlfyKTUIbcNLG7QzYkmzsfXZXq0crpeVO1g8fJAlXV8KnvOVY%2FkPLPW85jt23LPjCkse4xEpKlpL5cVlWMGPfadIwLt0wn6pCw0gIHrGwWOiJIKBeVCgjUor7YrOF4MVfDcmSlgpmHuHl0r%2BZH62SF%2Bt1s4qPlC1XyU%2Fb%2FTNTsyZJ6%2FhV1Ir44j5X5F603IkUIjJH64cJ5Si%2BRDDmuumO2vTJJA2ifS5YjsLQXHNH%2BCZ%2BvwlZE58gQhQ%2BRiFnHmlN3NZooD9dET979JhIRN2zNScBnI1X0ZpDoQ2H9ysW0VlIPGx1D8oAZT5RK%2BrHDfDkmkQRlQGU9OGeXShdMM4nggsJZYHQN1WRFLc0KWw5bo%2F05wOia4iMYhVxhni1CKJZ%2FGR2cm7qbRfOPcE5CRWb6xYWlMTvT2VEH3aK0U7BAb2mYk0j%2BQhN4gsSOB%2BLp%2Fc57ej148JVTjO6blxIYpVcprfOQIODGLdqDNdizuBltlH874YE0WYNhWMS3MLXVdzOOpnyDQodDt1O1z4twZnDUGwizgIQfWJK1g5g86gBQGdnC%2FiHAK1IiM3WD0t0Bx0ivRUDO6Buh4RatSImAP4xnN086qaeWOMddcu4SH3bABhbcNoaziAi8IAyft4yvAgs%2FAofcbZENYsE3lzB07NgeYMnoHllvTmAVnSLWjEoa4VrVSiF2z2EUtglhbj%2B5t1wNduEoZBRC%2Bxaijmqw9Xn9vlsBAetC6c17LfO8LobSQKFDdF%2F%2F8oKsheOmQntBNPuF8DsdktgOv1hGcz%2BIbB0Slhe0seQMDmj8o6BkK2RAbHd76F9K0r9tgg4Pv715WQG4h6eIsAD%2BC3rYmLgvm47vX4DbQla264TW7fc%2FaocrjF8GPrkDFXjSD1fkfY9i1bt2cdRg2UllsM6seyWsBxDJAfBCwknnOFrYGQwjbtk6H7iUms0o95GsugR8AEBYDtFseuGfovPiYfdd0jlminF7kSDcwlnp1cjznMvBnMLbASKBn47qUZHDHZsQmeBFvuAoa44RcBDCfijJmCsj2oxxpPJp9nsouVMUmuP3fhvDvjTcZQ7fDaQcnoVgdTgAFjf0kePC3Jb1QPHFZaDI5cTitYpMKj%2BMtpEKwdR%2FvT3DZx%2FnWnnjKB%2BvLm5RkVA27adQceC%2F3YD79boqU58JUGbLcOry88R3Q6MG2EYfP0HfH4Awd2TR4D2ZM7wsjyKk9Rt33yeoQgkmv7YBVMXzSDrSIOs%2FtnPjbJSLXuR9ti7e3wo5kxFFMVmQdQ2JeAV4EtE6DNaE6c1Hph4IK7wFDqPk8R7vDF9YRCYyIW%2B%2BwE9Q8783uLI67Y88oojtxK6IXvYglVFINA1vKraqoCB9yJmYgzYaf%2B%2FBsfRIL8zmK%2Fg1Y4X5Jlg7nlabZw0tE62g7pLgWg1rv9Irt%2B2es%2F6%2Ft7RGLZ5BcMmVBTrxw1X4BeSeB5CAXHHfE254mg%2B7xDWHIbxyNtM9NFwkK%2F8n9Pr2WdXny8vrgao6VkNeIo7u%2BP%2B9rFjzg5f0EN0q9xEwpi8SAucKv7mL8KZTyKBfQNImkUkG9Ah1FONMi2TcThk9EI4lPaplpAl6b%2Fx9V%2BxoSbw%2FPPkML5n8saNHhSJPKdGRSgTeTNPsjC6vmUjn4SRDhQU%2BMg2BHodtdoi3D3iU0Y0z8Pxa0HWmjg457pUz8d5K3Knw4aW0%2Bfw7GNOyQKOl3jcgeHnhsrTRhOqaECrRk0o04DxsNHQfRPsMBcoKjpl3OjF5E98SRYQXyT0wNJc086TTQ2qBaKgO6wP1eUN9VbPTJVDkwDEu0SLbWbIn5oh7w73nSLvHSKYD66q58jPmQqFYpEm1a21oWvuMF%2Fl8NY2mk6no%2BnPWVuAk7C%2F34x4z92TrLEPkSehxsIMz7aUwAf7aLkjJrZ6ZNN8NvuMPe45NsJ8CdtGYtfQfOmEXKBPS8F6qOngkPhyV%2BLMK%2BuVelSz%2B4O68ZylHZrQOQTdG%2Fyhg6SSDvxJ1lRpMceuXFK0OMS2OAPQ%2BIRD%2B4Rt%2Br%2FKKVTS%2F4dxCpeYFFPShwT0dqTH8R9H11I8PGoHkLF1X0IaGPfgdnrvwLQz23mJadvHMu0P9z9i1kl4Pc%2Fx9WZuPq1JmN7G7uuYuKk5GPhwX2X3Cfb%2FaQw%2FZ%2FjGst5kfz7eQdNPUs13rHnG0I84DLKpgbN72ph2TcR8lW33jhjoe%2F8qVR7tpWy83RlqrhVADrzHCVERpxjVm2l7HcuHUnhUqfcQsY8PwrA7zpFMXH1RipewLLpga3RCH6i30Tx5jmM9beCL4%2BfXwy9S5xtSBnBWTI0zpqcntEykxnx4ReYTfeLrO1gncyEN24aXgFTRaL2NvKOqPPx2R6YgP2kGqkH4UuVm3dxRMuvmjnRC7T%2FpBMw%2FgC8KLl%2FhDrumwsXE0uzGem4GoktvozSF%2B8a0DmS9pXQSXJ%2BPNGNJ60pM4mjYB9%2BZ1iRLnpxjJfeVu4q%2BXdFVDA%2Bim7NIMi%2F6Ee2kIAYWiYr0zoQ86uo8sKwKtbTEDSmBqSG0aiY408nKZmZCoG2yhqw%2FLy7Ofy99s8eD6eDsWPpWkTSwZ2xyCIVjix0EFIA%2B7HbdPN8Erk1zjjjVQrIcYVOYUI9vC%2FjjpAr9mAMZ2hVTC0PrOFlCbGFSfSrQtPA3rYxeaODcC87e2R5wnh0PTp3UtdM4U05Ip%2BohpqQd5%2FLBkbeCEVmbcN4xqIIg2OJRBwbfNkxSvwEY3egrA1xNGORMNqULYoyVmResmJO3TozhnjbAVvSsVcimE8GHR%2FZiKWHEXgI2S9B3R9APDO2U6I0LsD0111qjIsKdUJMBaeiVTvgda1XOL4e5u4c1V87eHALz5fUtKydhXuJCDS48M2TMiAIdnp%2B1Rj1DGpw2ORrPrVffd8G6cwAsyfW3iuyaJCfOeGDV%2FrbRYyonQGYTzFXvlOFMMfXNdMtxQqTJos1N5i8EXxFVyMK0RieR8AUW6o%2F8kE2Z9Mq0K5iUnP%2Bbc%2FkEs8oI%2Ftp%2B1n%2FwcVdijXuTiHtm8x9i3EUmcdS9S8M0zWRCczZn3BBPFfqV5evGDFCVjhWTekHPyhEEKhuV7WQwMMkN%2FLbrLDN7iQvC1e%2BndS9ll35U62zXqVHtxpvA57QclCTlegCxPWxIw41IblTUJoG3ElJtVyY7A%2BCdTz79dfXLq8ZR4AY3U99s5KK8JCQCnQ6QIP5yPdlavpHy2rtho%2F6SJmGAkNFKLEVA%2BEVWOk55NY0o9FUj3OAKTucQAd2aoinjPBer7AhckJTsb8GC9%2BRkTjmOmpb6t3LKsVgk%2BcM7jRpvlisfLLpDe%2FiEseMLPx29ICW6kR4tbrkA8dOSRuUl22U1kZSDqt4Vf%2BVFoJdXgHy5uUz5ncnsa4N7PbjbdSFeXuqxzuGq04s8muP1zLY8YvMjm%2B80KvAzKuDUpQLlNR4pJ%2BRhkhkMUAhXVdzB7wd5OnDYgtx2erR3dkDICxuvvKbL7%2B1yAClBZOYG9Tx1wRWcNgpwFAWozfD7u6DP5oX3X7nVAP4M4IXtWfKAP7lc7PCoD0qof%2Fr7cpZ37yn8DdqHR7tu%2Fz5s4K7Dm%2Ben4l4RblketteGq7WN608g%2BHPSz698yQs%2Fy9erQ%2FTOuxR9bvHB64nebUSfF32WCViH8LvvUvj5xPxXlD45rsPXs7mJ%2FMUdUkKmLNeXP9vZ1wZKPj87j0k%2BVbEOTJwGkz0wSdIN60DEbRDZB5E4Y7AORLoNIjlE8rn725jUyQ6QXgPLXrBkGXo1oKLKnbxOrDhSnCVCGpTCrFd3TzWPpJXTyPzpnU0PL3L3XYl8l3Oplw9W3UboxemYGoT%2BUHboHpGSLjF%2Fj6znOvVOf5i9FFWdaDzBzdpJRnBdgBWzzvKAZexHHXg5DV4vxSvlaOvAy63Ipc9yDI%2Bav%2FD2MUrS0wvwZHxWHfhUdDqF7WSp8gRfYbYwyW0o%2Bz7xyu0akUcshrEOtHp1Mby%2FLBZZTn4deJQTNzC5v4351%2Fo54vzqEwIWHZ2%2BWz%2BXXyhR9HXp7pk1oBWIiJbDvc90CZIjJsMSUNLBQySJR%2F8lvj7R7awF3zzoDRpGmHd%2BRfT%2BCVMu7uM91T29L6cn5pKm13iFnXz33H0kd7c7Kn3aJt833Nxm664mX4BkS0bTBOFdO0OcduD4MwtW5bcEhdVFLF4MtdxwoSX13Wxiqn9aUsLZ960%2F3KsfOARl2t7sFKWZXkrg1vMNq7g0bgbaJ3Ptda6bzG7O%2BMpsZB3fLt5JSXdLREZ0QSLRKVmY%2FsN3zy69I%2FFuVpwuop2bXG2by1Ymg%2Bt3573hcbYfOKtYNWfbg8OsgITT7G9D67rc39h2L%2F4P" target="_blank" rel="noopener">Abrir o modelo no diagrams.net</a>
@@ -956,7 +1036,7 @@ List&lt;Uint8List&gt; trustAnchorsFor(TransportMode mode) =&gt; switch (mode) {
 </section>
 
 <section id="evidencias">
-  <h2><span class="num">13</span>Evidências e testes</h2>
+  <h2><span class="num">14</span>Evidências e testes</h2>
   <p>A política é aplicada por gates automáticos em cada repositório e por testes de runtime que abrem handshakes reais. Um comando por camada:</p>
   <div class="table-wrap">
     <table>
@@ -984,11 +1064,13 @@ pqc-handshake-ok</code></pre>
 </section>
 
 <section id="limites">
-  <h2><span class="num">14</span>Limitações e roadmap</h2>
+  <h2><span class="num">15</span>Limitações e roadmap</h2>
   <ul>
-    <li><strong>Tokens continuam RS256.</strong> Keycloak e KrakenD não têm JWS com ML-DSA. O risco é limitado: os JWTs só trafegam dentro das sessões TLS pós-quânticas e têm vida curta. Quando os dois suportarem ML-DSA em JOSE, a troca é de configuração.</li>
-    <li><strong>O app está em modo compatibilidade hoje, e atualizar o Flutter ainda não muda isso.</strong> No Dart 3.11 (Flutter 3.41, versão fixada) a sonda falha ao carregar a raiz ML-DSA e o app usa ECDSA P-256 + X25519. No Dart 3.13 (Flutter 3.47, o mais recente) o BoringSSL já analisa certificados ML-DSA e verifica assinaturas X.509 ML-DSA, mas o handshake TLS continua sem ML-DSA em <code>signature_algorithms</code> e sem X25519MLKEM768 nos grupos padrão, e o <code>SecurityContext</code> do Dart não expõe nenhuma das duas listas. Ou seja: a versão mais nova melhora a verificação de certificados, mas não a negociação do transporte. A camada dual existe por causa dos clientes, não dos servidores.</li>
-    <li><strong>Atenção ao atualizar para o Dart 3.13.</strong> Como a sonda atual só testa o carregamento da raiz ML-DSA, num Dart que carrega a raiz mas não assina TLS com ML-DSA ela escolheria o modo pós-quântico e o app enrolaria uma identidade ML-DSA-65 que o BoringSSL não consegue usar no <code>CertificateVerify</code> do mTLS bancário. Antes de subir o pin do Flutter, a sonda precisa de um segundo critério (um handshake mTLS real com a chave ML-DSA, ou um sinalizador de configuração) para só ativar o modo pós-quântico quando o handshake também funcionar. Esse ajuste é pequeno e está listado como pendência.</li>
+    <li><strong>Tokens continuam RS256.</strong> Keycloak e KrakenD não têm JWS com ML-DSA. O risco é limitado: os JWTs só trafegam dentro das sessões TLS e, na borda do app, dentro do envelope pós-quântico; além disso têm vida curta. Quando os dois suportarem ML-DSA em JOSE, a troca é de configuração.</li>
+    <li><strong>O transporte do app está em modo compatibilidade, por política.</strong> Desde a feature 012 isso é uma decisão explícita (<code>PQC_TRANSPORT_POLICY</code>), não uma detecção: a proteção pós-quântica da borda vem do envelope de aplicação e das assinaturas ML-DSA-65, que não dependem da pilha TLS. Atualizar o Flutter ainda não muda o TLS. No Dart 3.11 (Flutter 3.41, versão fixada) a sonda falha ao carregar a raiz ML-DSA e o app usa ECDSA P-256 + X25519. No Dart 3.13 (Flutter 3.47, o mais recente) o BoringSSL já analisa certificados ML-DSA e verifica assinaturas X.509 ML-DSA, mas o handshake TLS continua sem ML-DSA em <code>signature_algorithms</code> e sem X25519MLKEM768 nos grupos padrão, e o <code>SecurityContext</code> do Dart não expõe nenhuma das duas listas. Ou seja: a versão mais nova melhora a verificação de certificados, mas não a negociação do transporte. A camada dual existe por causa dos clientes, não dos servidores.</li>
+    <li><strong>A sonda de certificado deixou de decidir sozinha.</strong> Num Dart que carrega a raiz ML-DSA mas não assina o handshake com ML-DSA, a sonda antiga escolheria o modo pós-quântico e o app enrolaria uma identidade que o BoringSSL não consegue usar no <code>CertificateVerify</code> do mTLS bancário. Por isso o modo agora vem da política de build, e <code>probe</code> é opt-in do operador.</li>
+    <li><strong>Chaves ainda em memória do processo.</strong> A chave de transporte e a semente de assinatura ML-DSA-65 vivem na memória do app. Levá-las para o hardware (StrongBox, Secure Enclave) é a feature 013; o mTLS com chave não exportável depende de um cliente TLS nativo, porque o <code>dart:io</code> carrega a chave a partir de bytes.</li>
+    <li><strong>Revogação e renovação ainda são manuais.</strong> CRLs nas duas cadeias, renovação automática e o gate de passthrough por nuvem estão especificados na feature 014.</li>
     <li><strong>Caminho para a borda totalmente pós-quântica.</strong> Quando um Flutter oferecer ML-DSA em <code>signature_algorithms</code> e X25519MLKEM768 nos grupos padrão (ou expuser isso no <code>SecurityContext</code>), o dispositivo enrola uma identidade ML-DSA-65, os listeners duais lhe servem a cadeia ML-DSA e nenhum servidor precisa mudar. A cadeia compat pode então ser retirada dos binds do gateway e ficar só no emissor, para navegadores. Enquanto isso não chega, a única forma de obter o híbrido X25519MLKEM768 no app hoje é trocar o transporte do <code>dart:io</code> por um stack nativo da plataforma (Cronet no Android e NSURLSession no iOS 26, via os adaptadores <code>cronet_http</code> e <code>cupertino_http</code> do pacote <code>http</code>, ou OpenSSL 3.5 por FFI), o que muda a forma de fazer mTLS com o certificado do dispositivo e por isso ficou fora do v1.</li>
     <li><strong>Sem SNI, o padrão é compat.</strong> Um cliente ML-DSA que conecte por IP puro receberá a identidade ECDSA e falhará; todos os serviços conectam por hostname, e o CI cobre isso.</li>
     <li><strong>Revogação</strong> no v1 é por reemissão e rotação de bundles. Um serviço de OCSP/CRL ou a adoção do OpenXPKI é decisão da spec <code>onboarding-pki</code> para depois do v1.</li>
@@ -997,7 +1079,7 @@ pqc-handshake-ok</code></pre>
 </section>
 
 <section id="referencias">
-  <h2><span class="num">15</span>Referências</h2>
+  <h2><span class="num">16</span>Referências</h2>
   <dl class="refs">
     <dt>FIPS 203, Module-Lattice-Based Key-Encapsulation Mechanism Standard (NIST, 2024)</dt><dd>ML-KEM-512/768/1024; o projeto usa ML-KEM-768 dentro do híbrido.</dd>
     <dt>FIPS 204, Module-Lattice-Based Digital Signature Standard (NIST, 2024)</dt><dd>ML-DSA-44/65/87; o projeto usa 65 para folhas e 87 para CAs.</dd>

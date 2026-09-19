@@ -100,10 +100,44 @@ every service does.
   client class on every hop; RSA refused everywhere; classical-only clients
   refused on the strict hop).
 
+## Application-layer envelope and transaction signatures (feature 012)
+
+The app-edge TLS hop is the only one whose key exchange and server
+authentication can still be classical (the Dart/BoringSSL client, or a cloud
+ingress that terminates TLS). Feature `012-pqc-application-envelope` adds a
+second, transport-independent post-quantum layer between the app and the
+backend, forwarded opaquely by KrakenD:
+
+| Piece | Where | Algorithms |
+| --- | --- | --- |
+| Envelope on every banking request/response body (header `X-Quantum-Envelope` for bodiless requests) | `mobile-app` `lib/core/pqc/hybrid_envelope.dart`, `backend` `envelope/` package (`EnvelopeFilter`) | ML-KEM-768 encapsulation + ephemeral X25519 (secrets concatenated like `X25519MLKEM768`), HKDF-SHA-256, AES-256-GCM bound to `METHOD PATH` |
+| Envelope key set published in the CSR response | `HybridEnvelopeKeyService`, verified by `EnvelopeKeysVerifier` in pure Dart | signed with the backend's PKI-issued ML-DSA-65 identity (context `quantum-bank-envelope-keys-v1`); chain verified up to the bundled ML-DSA-87 root (`mldsa_x509.dart`) |
+| Device signing key registered with the CSR (`signingKey`) | `DeviceSigningKey` (app), `SigningKeyValidator` + `device_signing_keys` (backend) | ML-DSA-65, proof of possession over the DER CSR (context `quantum-bank-signing-key-v1`) |
+| Pix order signature (`signature` object) | `PixTransactionSigner` (app), `PixSignatureVerifier` + `pix_transaction_signatures` (backend) | ML-DSA-65 over the canonical order (context `quantum-bank-pix-v1`), UUID nonce, ±2 min `issuedAt` skew |
+
+The policy is keyed by OAuth2 client (`quantum-bank.envelope.required-for-clients`,
+default `quantum-bank-mobile`): the mobile client, which is the only one served
+the dual TLS tier, must envelope and sign; strict-tier service clients
+(`backend-client`, the smoke-test client) keep plaintext JSON over their
+post-quantum mutual TLS. The transport mode of the device is now an explicit
+build policy (`PQC_TRANSPORT_POLICY=compatibility|probe`, compatibility by
+default) instead of a certificate-loading probe, because a Dart release that
+loads ML-DSA certificates without signing the handshake with ML-DSA would
+otherwise lock the device out.
+
+Evidence: `mobile-app/scripts/verify-pqc-envelope-interop.sh` decapsulates the
+app's ML-KEM-768 ciphertext and derives the X25519 secret with OpenSSL 3.5;
+`backend/src/test/resources/pqc/envelope-fixture.json` (emitted by
+`tool/emit_envelope_fixture.dart`) is opened by BouncyCastle in
+`HybridEnvelopeCodecTest`, and its ML-DSA-65 registration and Pix signature are
+verified in `DeviceSigningKeysTest` and `PixSignatureApiTest`. Contract:
+`specs/012-pqc-application-envelope/contracts/envelope-v1.md`.
+
 ## Application-layer tokens
 
 JWTs stay RS256: Keycloak and KrakenD have no ML-DSA JWS. Tokens only travel
-inside the TLS sessions described above.
+inside the TLS sessions described above, and the banking payloads they
+authorize are additionally sealed in the post-quantum envelope.
 
 ## Cloud ingress
 
@@ -120,7 +154,10 @@ front.
 The compatibility tier exists because of the client stacks, not the servers.
 When a Dart/Flutter release offers ML-DSA in `signature_algorithms` and
 `X25519MLKEM768` in its default groups (or exposes them on `SecurityContext`),
-the app's startup probe succeeds, the device enrolls an ML-DSA-65 identity, the
-dual listeners serve it the ML-DSA chain, and no server-side change is needed.
-The compatibility chain can then be retired from the gateway binds and kept for
-browsers on the issuer only.
+the operator switches the app to `PQC_TRANSPORT_POLICY=probe`, the device
+enrolls an ML-DSA-65 transport identity, the dual listeners serve it the ML-DSA
+chain, and no server-side change is needed. Until then the application
+envelope and the ML-DSA-65 transaction signatures already give the app edge
+post-quantum confidentiality and non-repudiation, so the compatibility TLS
+identity is a transport detail, not a security gap. The compatibility chain can
+then be retired from the gateway binds and kept for browsers on the issuer only.
