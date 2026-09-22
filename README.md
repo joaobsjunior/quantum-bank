@@ -12,10 +12,15 @@ over TLS 1.3. The app-facing listeners (issuer and gateway) serve a dual
 identity: the same ML-DSA chain to clients that offer ML-DSA signature schemes,
 and an ECDSA P-256 compatibility chain to clients whose TLS stack cannot verify
 ML-DSA yet (the Dart/BoringSSL mobile transport, browsers), preferring the
-hybrid group and accepting `X25519`; RSA is refused everywhere. See
+hybrid group and accepting `X25519`; RSA is refused everywhere. On top of TLS, every
+banking request and response travels inside a hybrid ML-KEM-768 + X25519
+application envelope and every Pix order carries an ML-DSA-65 device
+signature, so the app edge stays post-quantum even where the client TLS stack
+negotiates classical key exchange. See
 [docs/pqc-ml-dsa-transport.md](docs/pqc-ml-dsa-transport.md) for the tiers,
 the per-stack capability matrix that motivates them, the per-layer design and
-the evidence gates.
+the evidence gates, and `specs/012-pqc-application-envelope/` for the envelope
+feature (Spec Kit).
 
 ## Repository Layout
 
