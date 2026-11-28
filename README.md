@@ -78,7 +78,8 @@ The executable local runtime is in `infrastructure/compose.yaml`. It starts:
 - KrakenD bootstrap listener on `https://localhost:8080` (HAProxy terminator, dual identity)
 - KrakenD banking listener on `https://localhost:8443` (HAProxy terminator, dual identity, app mTLS from either PKI chain)
 
-Generate local runtime certificates first:
+Generate local runtime certificates first (OpenSSL >= 3.5 on the host, or
+Docker for the pinned `alpine/openssl:3.5.8` fallback):
 
 ```sh
 cd pki
@@ -86,19 +87,52 @@ scripts/bootstrap-runtime-certs.sh
 cd ../infrastructure
 ```
 
-Build and start the runtime:
+On a fresh clone this re-issues the tracked trust anchors
+(`pki/local-ca/trust/*.crt`, `mobile-app/assets/local-ca/*.crt`) for your own
+local CA keys, so those files show up as modified; see [Notes](#notes).
+
+Create `.env` and replace every `change-me-local-only` value, for example
+with random secrets:
 
 ```sh
-cp .env.example .env   # then replace every change-me-local-only / changeit value
-docker compose --env-file .env build
-docker compose --env-file .env up -d keycloak backend gateway-bootstrap gateway-banking backend-client
+cp .env.example .env
+for v in KEYCLOAK_ADMIN_PASSWORD KEYCLOAK_TEST_CLIENT_SECRET KEYCLOAK_SMOKE_PASSWORD \
+         BACKEND_CLIENT_CLIENT_SECRET BACKEND_CLIENT_CONSOLE_PASSWORD; do
+  sed -i.bak "s/^$v=.*/$v=$(openssl rand -hex 16)/" .env
+done && rm -f .env.bak
 ```
+
+Set `PKI_GID` in `.env` to the group that owns `pki/local-ca/private`:
+
+```sh
+stat -f %g ../pki/local-ca/private   # macOS
+stat -c %g ../pki/local-ca/private   # Linux
+```
+
+If a host port is already taken by something else, change
+`GATEWAY_BOOTSTRAP_PORT` (default `8080`), `GATEWAY_BANKING_PORT` (default
+`8443`) or `BACKEND_CLIENT_PORT` (default `8090`) in `.env`. Containers keep
+talking to each other on the internal ports, so the smoke tests are unaffected.
+
+Build and start the runtime (every service, including the HAProxy TLS
+terminators; the smoke-test containers are behind the `smoke` profile and do
+not start):
+
+```sh
+docker compose --env-file .env build
+docker compose --env-file .env up -d
+docker compose --env-file .env ps
+```
+
+The first build compiles both Spring Boot services inside Docker and takes a
+few minutes. Keycloak needs about a minute to import the realm; the smoke
+scripts wait for the services to become ready.
 
 All host ports bind to `127.0.0.1` by default (`BIND_ADDRESS` in `.env`). The
 external-service console on `http://localhost:8090` requires the operator
 credentials from `BACKEND_CLIENT_CONSOLE_USERNAME` / `BACKEND_CLIENT_CONSOLE_PASSWORD`.
 
-Run the local smoke test:
+Run the local smoke tests:
 
 ```sh
 docker compose --env-file .env --profile smoke run --rm smoke-tests
@@ -106,13 +140,17 @@ docker compose --env-file .env --profile smoke run --rm negative-mtls-tests
 docker compose --env-file .env --profile smoke run --rm pqc-handshake-tests
 ```
 
-Expected final output:
+Expected final output (one line per command):
 
 ```text
 local-e2e-smoke-ok
 negative-mtls-ok
 pqc-handshake-ok
 ```
+
+If Docker Desktop restarts (for example after an update) while the stack is
+up, the TLS terminators lose the network namespace they share with KrakenD and
+Keycloak; run `docker compose --env-file .env down` and `up -d` again.
 
 Stop the stack:
 
